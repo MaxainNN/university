@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+
+<div th:if="${param.error}" style="color: red;">
+    Invalid username or password
+</div>
+
+<div th:if="${success}" style="color: green;">
+    <span th:text="${success}"></span>
+</div>
+
+<form method="post" action="/login">
+    <div>
+        <label>Username:</label>
+        <input type="text" name="username" required>
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password" required>
+    </div>
+    <button type="submit">Login</button>
+</form>
+
+<p><a href="/register">Register new account</a></p>
+</body>
+</html>

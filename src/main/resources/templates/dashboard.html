@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard - Electronic Calendar</title>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .nav { background: #f8f9fa; padding: 10px; margin-bottom: 20px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+        .task-completed { text-decoration: line-through; color: #6c757d; }
+        .priority-high { color: #dc3545; font-weight: bold; }
+        .priority-medium { color: #ffc107; }
+        .priority-low { color: #28a745; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/dashboard">Dashboard</a> |
+    <a href="/dashboard/calendar">Calendar</a> |
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="container">
+    <h1>Welcome, <span th:text="${user.username}">User</span>!</h1>
+
+    <!-- Quick Stats -->
+    <div class="section">
+        <h3>Quick Stats</h3>
+        <p>Total Events: <span th:text="${events.size()}">0</span></p>
+        <p>Total Tasks: <span th:text="${tasks.size()}">0</span></p>
+        <p>Overdue Tasks: <span th:text="${overdueTasks.size()}">0</span></p>
+    </div>
+
+    <!-- Add Event Form -->
+    <div class="section">
+        <h3>Add New Event</h3>
+        <form th:action="@{/dashboard/events}" method="post">
+            <input type="text" name="title" placeholder="Event Title" required>
+            <input type="datetime-local" name="startTime" required>
+            <input type="datetime-local" name="endTime" required>
+            <input type="text" name="annotation" placeholder="Annotation">
+            <textarea name="notes" placeholder="Notes"></textarea>
+            <button type="submit">Add Event</button>
+        </form>
+    </div>
+
+    <!-- Add Task Form -->
+    <div class="section">
+        <h3>Add New Task</h3>
+        <form th:action="@{/dashboard/tasks}" method="post">
+            <input type="text" name="title" placeholder="Task Title" required>
+            <textarea name="description" placeholder="Description"></textarea>
+            <select name="priority">
+                <option value="LOW">Low</option>
+                <option value="MEDIUM" selected>Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+            </select>
+            <input type="datetime-local" name="dueDate">
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <!-- Recent Events -->
+    <div class="section">
+        <h3>Upcoming Events</h3>
+        <div th:each="event : ${events}">
+            <h4 th:text="${event.title}">Event Title</h4>
+            <p th:text="${event.startTime}">Start Time</p>
+            <p th:text="${event.annotation}">Annotation</p>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="section">
+        <h3>Tasks</h3>
+        <div th:each="task : ${tasks}">
+            <div th:classappend="${task.status == 'COMPLETED'} ? 'task-completed' : ''">
+                <h4 th:text="${task.title}">Task Title</h4>
+                <p th:text="${task.description}">Description</p>
+                <span th:class="'priority-' + ${task.priority.toLowerCase()}"
+                      th:text="${task.priority}">Priority</span>
+                <span th:text="${task.dueDate}">Due Date</span>
+                <form th:action="@{/dashboard/tasks/{id}/complete(id=${task.id})}"
+                      method="post" th:if="${task.status != 'COMPLETED'}">
+                    <button type="submit">Complete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

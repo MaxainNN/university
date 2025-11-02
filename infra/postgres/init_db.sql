@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS calendar_db;
+
+GRANT ALL PRIVILEGES ON DATABASE calendar_db TO postgres;
