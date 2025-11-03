@@ -3,32 +3,31 @@
 <head>
     <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="../static/styles/styles.css" th:href="@{styles/styles.css}" rel="stylesheet"
-          type="text/css"/>
+    <link rel="stylesheet" th:href="@{/styles/styles.css}">
 </head>
-<body>
-<h2>Login</h2>
+<body class="login-page">
+<div class="auth-form">
+    <h2>Login</h2>
 
-<div th:if="${param.error}" style="color: red;">
-    Invalid username or password
-</div>
+    <div th:if="${param.error}" class="error">
+        Invalid username or password
+    </div>
 
-<div th:if="${success}" style="color: green;">
-    <span th:text="${success}"></span>
-</div>
+    <div th:if="${success}" class="success">
+        <span th:text="${success}"></span>
+    </div>
 
-<form method="post" action="/login">
-    <div>
+    <form method="post" action="/login">
         <label>Username:</label>
         <input type="text" name="username" required>
-    </div>
-    <div>
+
         <label>Password:</label>
         <input type="password" name="password" required>
-    </div>
-    <button type="submit">Login</button>
-</form>
 
-<p><a href="/register">Register new account</a></p>
+        <button type="submit">Login</button>
+    </form>
+
+    <p><a th:href="@{/register}">Register new account</a></p>
+</div>
 </body>
 </html>

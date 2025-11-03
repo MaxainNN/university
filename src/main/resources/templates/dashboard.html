@@ -3,36 +3,19 @@
 <head>
     <title>Dashboard - Electronic Calendar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="../static/styles/styles.css" th:href="@{styles/styles.css}" rel="stylesheet"
-          type="text/css"/>
-    <style>
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .nav { background: #f8f9fa; padding: 10px; margin-bottom: 20px; }
-        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
-        .priority-low { color: #28a745 !important; }
-        .priority-medium { color: #ffc107 !important; }
-        .priority-high { color: #dc3545 !important; font-weight: bold !important; }
-        .priority-urgent {
-            color: #dc3545 !important;
-            font-weight: bold !important;
-            background-color: #ffe6e6 !important;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-        .priority-default { color: #6c757d !important; }
-    </style>
+    <link rel="stylesheet" th:href="@{/styles/styles.css}">
 </head>
-<body>
+<body class="dashboard-page">
+
 <div class="nav">
-    <a href="/dashboard">Dashboard</a> |
-    <a href="/dashboard/calendar">Calendar</a> |
-    <a href="/logout">Logout</a>
+    <a th:href="@{/dashboard}">Dashboard</a>
+    <a th:href="@{/dashboard/calendar}">Calendar</a>
+    <a th:href="@{/logout}">Logout</a>
 </div>
 
 <div class="container">
     <h1>Welcome, <span th:text="${user.username}">User</span>!</h1>
 
-    <!-- Quick Stats -->
     <div class="section">
         <h3>Quick Stats</h3>
         <p>Total Events: <span th:text="${events.size()}">0</span></p>
@@ -40,7 +23,6 @@
         <p>Overdue Tasks: <span th:text="${overdueTasks.size()}">0</span></p>
     </div>
 
-    <!-- Add Event Form -->
     <div class="section">
         <h3>Add New Event</h3>
         <form th:action="@{/dashboard/events}" method="post">
@@ -53,7 +35,6 @@
         </form>
     </div>
 
-    <!-- Add Task Form -->
     <div class="section">
         <h3>Add New Task</h3>
         <form th:action="@{/dashboard/tasks}" method="post">
@@ -70,7 +51,6 @@
         </form>
     </div>
 
-    <!-- Recent Events -->
     <div class="section">
         <h3>Upcoming Events</h3>
         <div th:each="event : ${events}">
@@ -80,25 +60,36 @@
         </div>
     </div>
 
-    <!-- Task List -->
     <div class="section">
         <h3>Tasks</h3>
         <div th:each="task : ${tasks}">
             <div th:classappend="${task.status == 'COMPLETED'} ? 'task-completed' : ''">
                 <h4 th:text="${task.title}">Task Title</h4>
                 <p th:text="${task.description}">Description</p>
-                <span th:if="${task.priority == 'LOW'}" class="priority-low" th:text="${task.priority}">LOW</span>
-                <span th:if="${task.priority == 'MEDIUM'}" class="priority-medium" th:text="${task.priority}">MEDIUM</span>
-                <span th:if="${task.priority == 'HIGH'}" class="priority-high" th:text="${task.priority}">HIGH</span>
-                <span th:if="${task.priority == 'URGENT'}" class="priority-urgent" th:text="${task.priority}">URGENT</span>
+
+                <span th:if="${task.priority == 'LOW'}" class="priority-low" th:text="${task.priority}"></span>
+                <span th:if="${task.priority == 'MEDIUM'}" class="priority-medium" th:text="${task.priority}"></span>
+                <span th:if="${task.priority == 'HIGH'}" class="priority-high" th:text="${task.priority}"></span>
+                <span th:if="${task.priority == 'URGENT'}" class="priority-urgent" th:text="${task.priority}"></span>
                 <span th:if="${task.priority == null}" class="priority-default">MEDIUM</span>
-                <span th:text="${task.dueDate}">Due Date</span>
+
+                <span th:text="${#temporals.format(task.dueDate, 'yyyy-MM-dd HH:mm')}">Due Date</span>
+
                 <form th:action="@{/dashboard/tasks/{id}/complete(id=${task.id})}"
                       method="post" th:if="${task.status != 'COMPLETED'}">
                     <button type="submit">Complete</button>
                 </form>
             </div>
         </div>
+    </div>
+    <div class="pagination">
+        <a th:if="${currentPage > 0}"
+           th:href="@{/dashboard(page=${currentPage - 1})}">&laquo; Previous</a>
+
+        <span th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}"></span>
+
+        <a th:if="${currentPage + 1 < totalPages}"
+           th:href="@{/dashboard(page=${currentPage + 1})}">Next &raquo;</a>
     </div>
 </div>
 </body>

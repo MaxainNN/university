@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Контроллер с дашбордом.
@@ -43,7 +46,12 @@ public class DashboardController {
     @GetMapping
     @Operation(summary = "Главная страница dashboard",
             description = "Возвращает dashboard с событиями, задачами и формами для их создания")
-    public String dashboard(Authentication authentication, Model model) {
+    public String dashboard(
+            Authentication authentication,
+            Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/";
         }
@@ -52,15 +60,17 @@ public class DashboardController {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Page<Task> taskPage = taskService.getTasksByUser(user, page, size);
         List<Event> events = eventService.getUserEvents(user.getId());
-        List<Task> tasks = taskService.getUserTasks(user.getId());
         List<Task> overdueTasks = taskService.getOverdueTasks(user.getId());
 
         model.addAttribute("user", user);
         model.addAttribute("events", events);
-        model.addAttribute("tasks", tasks);
+        model.addAttribute("tasks", taskPage.getContent());
         model.addAttribute("overdueTasks", overdueTasks);
         model.addAttribute("currentDate", LocalDate.now());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", taskPage.getTotalPages());
 
         return "dashboard";
     }
@@ -90,8 +100,11 @@ public class DashboardController {
 
         List<Event> events = eventService.getUserEventsByDateRange(user.getId(), start, end);
 
+        Map<Integer, List<Event>> eventsByDay = events.stream()
+                .collect(Collectors.groupingBy(e -> e.getStartTime().getDayOfMonth()));
+
         model.addAttribute("user", user);
-        model.addAttribute("events", events);
+        model.addAttribute("events", eventsByDay);
         model.addAttribute("selectedDate", date);
 
         return "calendar";

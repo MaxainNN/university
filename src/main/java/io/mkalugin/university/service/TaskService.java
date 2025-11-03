@@ -5,6 +5,10 @@ import io.mkalugin.university.entity.User;
 import io.mkalugin.university.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,11 +27,12 @@ public class TaskService {
     /**
      * Создание задачи.
      *
-     * @param title
-     * @param description
-     * @param dueDate
-     * @param priority
-     * @param user
+     * @param title заголовок
+     * @param description описание
+     * @param dueDate срок выполнения
+     * @param priority приоритет
+     * @param user пользователь
+     * @return созданная сущность задачи
      */
     public Task createTask(String title, String description, Task.TaskPriority priority,
                            LocalDateTime dueDate, User user) {
@@ -39,19 +44,25 @@ public class TaskService {
     }
 
     /**
-     * Получение задачи по идентификатору пользователя.
+     * Получение списка задач пользователя
+     * с пагинацией.
      *
-     * @param userId
+     * @param user пользователь
+     * @param page страница
+     * @param size количество элементов
+     * @return спискок задач пользователя
      */
-    public List<Task> getUserTasks(Long userId) {
-        return taskRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public Page<Task> getTasksByUser(User user, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate").descending());
+        return taskRepository.findAllByUser(user, pageable);
     }
 
     /**
      * Получение списка задач по статусу.
      *
-     * @param userId
-     * @param status
+     * @param userId идентификатор пользователя
+     * @param status статус
+     * @return список задач
      */
     public List<Task> getTasksByStatus(Long userId, Task.TaskStatus status) {
         return taskRepository.findByUserIdAndStatus(userId, status);
@@ -60,17 +71,19 @@ public class TaskService {
     /**
      * Получение списка задач по приоритету.
      *
-     * @param userId
-     * @param priority
+     * @param userId идентификатор пользователя
+     * @param priority приоритет
+     * @return список задач
      */
     public List<Task> getTasksByPriority(Long userId, Task.TaskPriority priority) {
         return taskRepository.findByUserIdAndPriority(userId, priority);
     }
 
     /**
-     * Получение списка срочных задач.
+     * Получение списка актуальных задач.
      *
-     * @param userId
+     * @param userId идентификатор пользователя
+     * @return список задач
      */
     public List<Task> getOverdueTasks(Long userId) {
         return taskRepository.findOverdueTasks(userId);
@@ -79,8 +92,9 @@ public class TaskService {
     /**
      * Обновление статуса задачи.
      *
-     * @param taskId
-     * @param status
+     * @param taskId идентификатор задачи
+     * @param status статус
+     * @return обновленная сущность задачи
      */
     public Task updateTaskStatus(Long taskId, Task.TaskStatus status) {
         Task task = taskRepository.findById(taskId)
@@ -97,11 +111,12 @@ public class TaskService {
     /**
      * Обновление задачи.
      *
-     * @param taskId
-     * @param title
-     * @param description
-     * @param priority
-     * @param dueDate
+     * @param taskId идентификатор задачи
+     * @param title заголовок
+     * @param description описание
+     * @param priority приритет
+     * @param dueDate дата выполнения
+     * @return обновленная сущность задачи
      */
     public Task updateTask(Long taskId, String title, String description,
                            Task.TaskPriority priority, LocalDateTime dueDate) {
@@ -114,14 +129,5 @@ public class TaskService {
         task.setDueDate(dueDate);
 
         return taskRepository.save(task);
-    }
-
-    /**
-     * Удаление задачи.
-     *
-     * @param taskId
-     */
-    public void deleteTask(Long taskId) {
-        taskRepository.deleteById(taskId);
     }
 }

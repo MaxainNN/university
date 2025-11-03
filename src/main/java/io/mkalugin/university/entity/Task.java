@@ -15,8 +15,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tasks")
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,6 +45,7 @@ public class Task {
     @Column(nullable = false)
     private TaskPriority priority = TaskPriority.MEDIUM;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
     private LocalDateTime completedAt;
@@ -63,5 +67,12 @@ public class Task {
 
     public enum TaskPriority {
         LOW, MEDIUM, HIGH, URGENT
+    }
+
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, status, priority, dueDate, completedAt, createdAt, user);
     }
 }

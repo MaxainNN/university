@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Calendar - Electronic Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body class="calendar-page">
+<div class="nav">
+    <a href="/dashboard">Dashboard</a> |
+    <a href="/calendar">Calendar</a> |
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="calendar-container">
+    <div class="calendar-header">
+        <h2 th:text="${selectedDate.month} + ' ' + ${selectedDate.year}">Month Year</h2>
+        <div>
+            <form th:action="@{/calendar}" method="get" style="display:inline-block">
+                <input type="month" name="date" th:value="${selectedDate}" />
+                <button type="submit">Go</button>
+            </form>
+        </div>
+        <div class="view-buttons">
+            <button class="active" onclick="showView('month')">Month</button>
+            <button onclick="showView('week')">Week</button>
+            <button onclick="showView('day')">Day</button>
+        </div>
+    </div>
+
+    <div id="month-view" class="calendar-grid"
+         th:with="days=${#numbers.sequence(1, selectedDate.lengthOfMonth())}">
+        <div class="day-cell" th:each="day : ${days}"
+             th:classappend="${eventsByDay[day]} != null ? 'has-event' : ''">
+            <div class="date-number" th:text="${day}">1</div>
+            <div class="event-count" th:if="${eventsByDay[day]} != null"
+                 th:text="${#lists.size(eventsByDay[day])} + ' events'"></div>
+        </div>
+    </div>
+
+    <div id="week-view" style="display:none;">
+        <p>Week view coming soon...</p>
+    </div>
+    <div id="day-view" style="display:none;">
+        <p>Day view coming soon...</p>
+    </div>
+</div>
+
+<script>
+    function showView(view) {
+        document.getElementById('month-view').style.display = (view === 'month') ? 'grid' : 'none';
+        document.getElementById('week-view').style.display = (view === 'week') ? 'block' : 'none';
+        document.getElementById('day-view').style.display = (view === 'day') ? 'block' : 'none';
+
+        document.querySelectorAll('.view-buttons button').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.view-buttons button[onclick="showView('${view}')"]`).classList.add('active');
+    }
+</script>
+</body>
+</html>

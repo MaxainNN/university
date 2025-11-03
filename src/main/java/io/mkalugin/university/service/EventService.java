@@ -22,13 +22,15 @@ public class EventService {
 
     /**
      * Создание события.
-     * @param title
-     * @param startTime
-     * @param endTime
-     * @param annotation
-     * @param notes
-     * @param reminderTime
-     * @param user
+     *
+     * @param title заголовок
+     * @param startTime дата начала
+     * @param endTime дата окончания
+     * @param annotation аннотация
+     * @param notes заметка
+     * @param reminderTime время напоминания
+     * @param user пользователь
+     * @return созданная сущность события
      */
     public Event createEvent(String title, LocalDateTime startTime, LocalDateTime endTime,
                              String annotation, String notes, LocalDateTime reminderTime, User user) {
@@ -41,7 +43,9 @@ public class EventService {
 
     /**
      * Получение списка событий по идентификатору пользователя.
-     * @param userId
+     *
+     * @param userId идентификатор пользователя
+     * @return список событий пользователя
      */
     public List<Event> getUserEvents(Long userId) {
         return eventRepository.findByUserIdOrderByStartTime(userId);
@@ -49,9 +53,11 @@ public class EventService {
 
     /**
      * Получение списка событий по временому промежутку.
-     * @param userId
-     * @param start
-     * @param end
+     *
+     * @param userId идентификатор пользователя
+     * @param start дата начала
+     * @param end дата окончания
+     * @return список событий пользователя
      */
     public List<Event> getUserEventsByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
         return eventRepository.findByUserIdAndDateRange(userId, start, end);
@@ -59,13 +65,14 @@ public class EventService {
 
     /**
      * Обновление события.
-     * @param eventId
-     * @param title
-     * @param startTime
-     * @param endTime
-     * @param annotation
-     * @param notes
-     * @param reminderTime
+     *
+     * @param eventId идентификатор события
+     * @param startTime дата начала
+     * @param endTime дата окончания
+     * @param annotation аннотация
+     * @param notes заметка
+     * @param reminderTime время напоминания
+     * @return обвновленная сущность события
      */
     public Event updateEvent(Long eventId, String title, LocalDateTime startTime, LocalDateTime endTime,
                              String annotation, String notes, LocalDateTime reminderTime) {
@@ -80,20 +87,5 @@ public class EventService {
         event.setReminderTime(reminderTime);
 
         return eventRepository.save(event);
-    }
-
-    /**
-     * Удаление события.
-     * @param eventId
-     */
-    public void deleteEvent(Long eventId) {
-        eventRepository.deleteById(eventId);
-    }
-
-    /**
-     * Получение списка событий для напоминания.
-     */
-    public List<Event> getEventsForReminder() {
-        return eventRepository.findByReminderTimeBeforeAndReminderSentFalse(LocalDateTime.now());
     }
 }

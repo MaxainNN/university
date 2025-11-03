@@ -22,9 +22,11 @@ public class UserService {
 
     /**
      * Регистрация пользователя.
-     * @param username
-     * @param email
-     * @param password
+     *
+     * @param username имя пользователя
+     * @param email почта
+     * @param password пароль
+     * @return созданная сущность пользователя
      */
     public User registerUser(String username, String email, String password) {
         log.info("registerUser called for username={}, email={}", username, email);
@@ -45,7 +47,9 @@ public class UserService {
 
     /**
      * Нахождение пользователя по имени.
-     * @param username
+     *
+     * @param username имя пользователя
+     * @return пользователь с указанным именем
      */
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -53,7 +57,9 @@ public class UserService {
 
     /**
      * Нахождение пользователя по идентификатору.
-     * @param id
+     *
+     * @param id идентификатор пользователя
+     * @return пользователь с указанным идентификатором
      */
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -61,10 +67,12 @@ public class UserService {
 
     /**
      * Обновление пользователя.
-     * @param userId
-     * @param username
-     * @param email
-     * @param password
+     *
+     * @param userId идентификатор пользователя
+     * @param username имя пользователя
+     * @param email почта
+     * @param password пароль
+     * @return обновленная сущность пользователя
      */
     public User updateUser(Long userId, String username, String email, String password) {
         User user = userRepository.findById(userId)

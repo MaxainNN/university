@@ -1,6 +1,11 @@
+/* ===========================================
+   🌿 Global Reset & Variables
+   =========================================== */
 *, ::before, ::after {
     box-sizing: border-box;
 }
+
+/* Интерфейсный шрифт */
 
 @font-face {
     font-family: "Inter";
@@ -10,19 +15,318 @@
     font-display: swap;
 }
 
+/* Основные цвета темы */
+
 body {
     --color-primary: #174536;
     --color-secondary: #768c7d;
     --color-error: #d32f2f;
     --color-link: #53875a;
     --color-heading: #6b706e;
-    --color-ligth: #f6f6f6;
+    --color-light: #f6f6f6;
+
     margin: 0;
     padding: 0;
     font-family: "Inter", sans-serif;
     font-size: 14px;
-    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    color: var(--color-heading);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===========================================
+   🌆 Backgrounds
+   =========================================== */
+
+body.login-page,
+body.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url("../images/login_img.jpeg") no-repeat center center fixed;
+    background-size: cover;
+}
+
+body.dashboard-page {
+    background: url("../images/dash_img.jpeg") no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* ===========================================
+   🧱 Layout Containers
+   =========================================== */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Панель навигации */
+
+.nav {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 15px auto;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-weight: 500;
+}
+
+/* Секции контента */
+
+.section {
+    background: #fff;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+/* ===========================================
+   🔥 Priorities
+   =========================================== */
+
+.priority-low {
+    color: #28a745 !important;
+}
+
+.priority-medium {
+    color: #ffc107 !important;
+}
+
+.priority-high {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}
+
+.priority-urgent {
+    color: #dc3545 !important;
+    font-weight: bold !important;
+    background-color: #ffe6e6 !important;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.priority-default {
+    color: #6c757d !important;
+}
+
+/* ===========================================
+   🧍 Login & Register Forms
+   =========================================== */
+
+.auth-form {
+    width: 400px;
+    margin: 120px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.auth-form h2 {
+    color: var(--color-primary);
+    margin-bottom: 20px;
+}
+
+.auth-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.auth-form button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.auth-form button:hover {
+    background-color: #0f3528;
+}
+
+/* Ошибки и уведомления */
+.auth-form .error {
+    color: var(--color-error);
+    margin-top: 10px;
+}
+
+.auth-form .success {
+    color: #28a745;
+    margin-top: 10px;
+}
+
+/* Ссылки */
+.auth-form a {
+    color: var(--color-link);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-form a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   Dashboard Layout Styling
+   ========================= */
+.dashboard-page .container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.nav a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons & inputs */
+button {
+    background-color: var(--color-link);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background-color: #3a6f45;
+}
+
+input, textarea, select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Выполнение задачи */
+
+.task-completed {
+    background-color: #f0f0f0;
+    color: #888;
+    text-decoration: line-through;
+    border-left: 4px solid #4caf50;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Пагинация */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 5px 10px;
+    background-color: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.pagination a:hover {
+    background-color: var(--color-secondary);
+}
+
+.calendar-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.day-cell {
+    border: 1px solid #ddd;
+    min-height: 80px;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    position: relative;
+}
+
+.day-cell.has-event {
+    background-color: #d1f0d1;
+}
+
+.day-cell .date-number {
+    font-weight: bold;
+}
+
+.day-cell .event-count {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #28a745;
+    color: white;
+    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.view-buttons button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.view-buttons button.active {
+    background-color: var(--color-secondary);
+}
