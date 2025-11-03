@@ -3,10 +3,20 @@
 ## Stack:
 - Spring Boot
 - Hibernate
-- Swagger (add)
+- Swagger
 - Thymeleaf
 - Postgres
 - Elasticsearch
 - Redis
-- Testcontainers
+
+
+## Run containers:
+```bash
+    docker-compose up -d
+```
+
+## Command to build:
+```bash
+  mvn clean install
+```
 

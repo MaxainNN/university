@@ -26,6 +26,21 @@ spring:
     mode: HTML
     encoding: UTF-8
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans,health,info
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: true
+
 logging:
   level:
     org.springframework.web: DEBUG

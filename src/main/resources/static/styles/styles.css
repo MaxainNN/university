@@ -1,0 +1,28 @@
+*, ::before, ::after {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: "Inter";
+    src: url("../fonts/Inter-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    --color-primary: #174536;
+    --color-secondary: #768c7d;
+    --color-error: #d32f2f;
+    --color-link: #53875a;
+    --color-heading: #6b706e;
+    --color-ligth: #f6f6f6;
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+

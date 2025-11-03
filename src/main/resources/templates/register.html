@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Register</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../static/styles/styles.css" th:href="@{styles/styles.css}" rel="stylesheet"
+          type="text/css"/>
 </head>
 <body>
 <h2>Register</h2>
@@ -10,22 +13,23 @@
     <span th:text="${error}"></span>
 </div>
 
-<form method="post" action="/register">
+<form th:action="@{/register}" method="post">
+
     <div>
         <label>Username:</label>
-        <input type="text" name="username" required>
+        <input type="text" name="username" required />
     </div>
     <div>
         <label>Email:</label>
-        <input type="email" name="email" required>
+        <input type="email" name="email" required />
     </div>
     <div>
         <label>Password:</label>
-        <input type="password" name="password" required>
+        <input type="password" name="password" required />
     </div>
     <button type="submit">Register</button>
 </form>
 
-<p><a href="/">Back to Login</a></p>
+<p><a th:href="@{/}">Back to Login</a></p>
 </body>
 </html>

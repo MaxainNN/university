@@ -6,6 +6,9 @@ import io.mkalugin.university.entity.User;
 import io.mkalugin.university.service.EventService;
 import io.mkalugin.university.service.TaskService;
 import io.mkalugin.university.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
@@ -27,6 +30,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
+@Tag(name = "Dashboard", description = "API для работы с dashboard - событиями и задачами")
 public class DashboardController {
 
     private final EventService eventService;
@@ -34,9 +38,11 @@ public class DashboardController {
     private final UserService userService;
 
     /**
-     * Главная страница дашборда
+     * Главная страница дашборда.
      */
     @GetMapping
+    @Operation(summary = "Главная страница dashboard",
+            description = "Возвращает dashboard с событиями, задачами и формами для их создания")
     public String dashboard(Authentication authentication, Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/";
@@ -60,9 +66,11 @@ public class DashboardController {
     }
 
     /**
-     * Календарь пользователя
+     * Календарь пользователя.
      */
     @GetMapping("/calendar")
+    @Operation(summary = "Страница календаря",
+            description = "Возвращает страницу с календарем событий")
     public String calendar(@RequestParam(required = false)
                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                            Authentication authentication, Model model) {
@@ -90,15 +98,18 @@ public class DashboardController {
     }
 
     /**
-     * Добавление события
+     * Добавление события.
      */
     @PostMapping("/events")
-    public String createEvent(@RequestParam String title,
-                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
-                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
-                              @RequestParam(required = false) String annotation,
-                              @RequestParam(required = false) String notes,
-                              Authentication authentication) {
+    @Operation(summary = "Создание нового события",
+            description = "Создает новое событие в календаре пользователя")
+    public String createEvent(
+            @Parameter(description = "Название события", required = true) @RequestParam String title,
+            @Parameter(description = "Время начала события", required = true) @RequestParam LocalDateTime startTime,
+            @Parameter(description = "Время окончания события", required = true) @RequestParam LocalDateTime endTime,
+            @Parameter(description = "Аннотация события") @RequestParam(required = false) String annotation,
+            @Parameter(description = "Заметки к событию") @RequestParam(required = false) String notes,
+            Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -107,14 +118,16 @@ public class DashboardController {
     }
 
     /**
-     * Добавление задачи
+     * Добавление задачи.
      */
     @PostMapping("/tasks")
-    public String createTask(@RequestParam String title,
-                             @RequestParam(required = false) String description,
-                             @RequestParam Task.TaskPriority priority,
-                             @RequestParam(required = false)
-                             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate,
+    @Operation(summary = "Создание новой задачи",
+            description = "Создает новую задачу для пользователя")
+    public String createTask(
+            @Parameter(description = "Название задачи", required = true) @RequestParam String title,
+            @Parameter(description = "Описание задачи") @RequestParam(required = false) String description,
+            @Parameter(description = "Приоритет задачи") @RequestParam Task.TaskPriority priority,
+            @Parameter(description = "Срок выполнения задачи") @RequestParam(required = false) LocalDateTime dueDate,
                              Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -124,10 +137,13 @@ public class DashboardController {
     }
 
     /**
-     * Завершение задачи
+     * Завершение задачи.
      */
     @PostMapping("/tasks/{taskId}/complete")
-    public String completeTask(@PathVariable Long taskId) {
+    @Operation(summary = "Отметка задачи как выполненной",
+            description = "Отмечает задачу как выполненную по ID")
+    public String completeTask(
+            @Parameter(description = "ID задачи", required = true) @PathVariable Long taskId) {
         taskService.updateTaskStatus(taskId, Task.TaskStatus.COMPLETED);
         return "redirect:/dashboard";
     }

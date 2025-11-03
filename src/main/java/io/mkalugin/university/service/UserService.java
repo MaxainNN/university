@@ -27,6 +27,8 @@ public class UserService {
      * @param password
      */
     public User registerUser(String username, String email, String password) {
+        log.info("registerUser called for username={}, email={}", username, email);
+
         if (userRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already exists");
         }
@@ -35,7 +37,10 @@ public class UserService {
         }
 
         User user = new User(username, email, passwordEncoder.encode(password));
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        log.info("User saved id={}, username={}", saved.getId(), saved.getUsername());
+
+        return saved;
     }
 
     /**

@@ -2,14 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Dashboard - Electronic Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../static/styles/styles.css" th:href="@{styles/styles.css}" rel="stylesheet"
+          type="text/css"/>
     <style>
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         .nav { background: #f8f9fa; padding: 10px; margin-bottom: 20px; }
         .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
-        .task-completed { text-decoration: line-through; color: #6c757d; }
-        .priority-high { color: #dc3545; font-weight: bold; }
-        .priority-medium { color: #ffc107; }
-        .priority-low { color: #28a745; }
+        .priority-low { color: #28a745 !important; }
+        .priority-medium { color: #ffc107 !important; }
+        .priority-high { color: #dc3545 !important; font-weight: bold !important; }
+        .priority-urgent {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+            background-color: #ffe6e6 !important;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .priority-default { color: #6c757d !important; }
     </style>
 </head>
 <body>
@@ -77,8 +87,11 @@
             <div th:classappend="${task.status == 'COMPLETED'} ? 'task-completed' : ''">
                 <h4 th:text="${task.title}">Task Title</h4>
                 <p th:text="${task.description}">Description</p>
-                <span th:class="'priority-' + ${task.priority.toLowerCase()}"
-                      th:text="${task.priority}">Priority</span>
+                <span th:if="${task.priority == 'LOW'}" class="priority-low" th:text="${task.priority}">LOW</span>
+                <span th:if="${task.priority == 'MEDIUM'}" class="priority-medium" th:text="${task.priority}">MEDIUM</span>
+                <span th:if="${task.priority == 'HIGH'}" class="priority-high" th:text="${task.priority}">HIGH</span>
+                <span th:if="${task.priority == 'URGENT'}" class="priority-urgent" th:text="${task.priority}">URGENT</span>
+                <span th:if="${task.priority == null}" class="priority-default">MEDIUM</span>
                 <span th:text="${task.dueDate}">Due Date</span>
                 <form th:action="@{/dashboard/tasks/{id}/complete(id=${task.id})}"
                       method="post" th:if="${task.status != 'COMPLETED'}">
