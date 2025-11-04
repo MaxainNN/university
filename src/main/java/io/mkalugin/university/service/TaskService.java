@@ -2,6 +2,8 @@ package io.mkalugin.university.service;
 
 import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
+import io.mkalugin.university.enums.TaskPriority;
+import io.mkalugin.university.enums.TaskStatus;
 import io.mkalugin.university.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class TaskService {
      * @param user пользователь
      * @return созданная сущность задачи
      */
-    public Task createTask(String title, String description, Task.TaskPriority priority,
+    public Task createTask(String title, String description, TaskPriority priority,
                            LocalDateTime dueDate, User user) {
         Task task = new Task(title, user);
         task.setDescription(description);
@@ -64,7 +66,7 @@ public class TaskService {
      * @param status статус
      * @return список задач
      */
-    public List<Task> getTasksByStatus(Long userId, Task.TaskStatus status) {
+    public List<Task> getTasksByStatus(Long userId, TaskStatus status) {
         return taskRepository.findByUserIdAndStatus(userId, status);
     }
 
@@ -75,7 +77,7 @@ public class TaskService {
      * @param priority приоритет
      * @return список задач
      */
-    public List<Task> getTasksByPriority(Long userId, Task.TaskPriority priority) {
+    public List<Task> getTasksByPriority(Long userId, TaskPriority priority) {
         return taskRepository.findByUserIdAndPriority(userId, priority);
     }
 
@@ -96,12 +98,12 @@ public class TaskService {
      * @param status статус
      * @return обновленная сущность задачи
      */
-    public Task updateTaskStatus(Long taskId, Task.TaskStatus status) {
+    public Task updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
         task.setStatus(status);
-        if (status == Task.TaskStatus.COMPLETED) {
+        if (status == TaskStatus.COMPLETED) {
             task.setCompletedAt(LocalDateTime.now());
         }
 
@@ -119,7 +121,7 @@ public class TaskService {
      * @return обновленная сущность задачи
      */
     public Task updateTask(Long taskId, String title, String description,
-                           Task.TaskPriority priority, LocalDateTime dueDate) {
+                           TaskPriority priority, LocalDateTime dueDate) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 

@@ -2,6 +2,8 @@ package io.mkalugin.university.repository;
 
 import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
+import io.mkalugin.university.enums.TaskPriority;
+import io.mkalugin.university.enums.TaskStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,7 +34,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @param status статус
      * @return список задач
      */
-    List<Task> findByUserIdAndStatus(Long userId, Task.TaskStatus status);
+    List<Task> findByUserIdAndStatus(Long userId, TaskStatus status);
 
     /**
      * Получение списка задач по приоритету.
@@ -41,7 +43,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
      * @param priority приоритет
      * @return список задач
      */
-    List<Task> findByUserIdAndPriority(Long userId, Task.TaskPriority priority);
+    List<Task> findByUserIdAndPriority(Long userId, TaskPriority priority);
 
     /**
      * Получение списка актуальных задач.

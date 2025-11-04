@@ -25,6 +25,8 @@ spring:
     suffix: .html
     mode: HTML
     encoding: UTF-8
+  elasticsearch:
+    uris: http://localhost:9200
 
 management:
   endpoints:

@@ -1,14 +1,16 @@
-package io.mkalugin.university.controller;
+package io.mkalugin.university.controller.web;
 
 import io.mkalugin.university.entity.Event;
 import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
+import io.mkalugin.university.entity.documents.EventDocument;
+import io.mkalugin.university.enums.TaskPriority;
+import io.mkalugin.university.enums.TaskStatus;
+import io.mkalugin.university.exception.UserNotFoundException;
 import io.mkalugin.university.service.EventService;
 import io.mkalugin.university.service.TaskService;
 import io.mkalugin.university.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import io.mkalugin.university.service.search.EventSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,49 +30,43 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Контроллер с дашбордом.
+ * Web Контроллер с дашбордом.
  */
 @Controller
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
-@Tag(name = "Dashboard", description = "API для работы с dashboard - событиями и задачами")
 public class DashboardController {
 
     private final EventService eventService;
     private final TaskService taskService;
     private final UserService userService;
+    private final EventSearchService eventSearchService;
 
     /**
      * Главная страница дашборда.
      */
     @GetMapping
-    @Operation(summary = "Главная страница dashboard",
-            description = "Возвращает dashboard с событиями, задачами и формами для их создания")
     public String dashboard(
             Authentication authentication,
             Model model,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "0") int page
     ) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/";
         }
 
-        String username = authentication.getName();
-        User user = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByUsername(authentication.getName())
+                .orElseThrow(UserNotFoundException::new);
 
-        Page<Task> taskPage = taskService.getTasksByUser(user, page, size);
-        List<Event> events = eventService.getUserEvents(user.getId());
-        List<Task> overdueTasks = taskService.getOverdueTasks(user.getId());
+        Page<Task> taskPage = taskService.getTasksByUser(user, page, 10);
 
         model.addAttribute("user", user);
-        model.addAttribute("events", events);
         model.addAttribute("tasks", taskPage.getContent());
-        model.addAttribute("overdueTasks", overdueTasks);
-        model.addAttribute("currentDate", LocalDate.now());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", taskPage.getTotalPages());
+
+        List<Task> overdueTasks = taskService.getOverdueTasks(user.getId());
+        model.addAttribute("overdueTasks", overdueTasks);
 
         return "dashboard";
     }
@@ -79,8 +75,6 @@ public class DashboardController {
      * Календарь пользователя.
      */
     @GetMapping("/calendar")
-    @Operation(summary = "Страница календаря",
-            description = "Возвращает страницу с календарем событий")
     public String calendar(@RequestParam(required = false)
                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                            Authentication authentication, Model model) {
@@ -89,7 +83,7 @@ public class DashboardController {
         }
 
         User user = userService.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         if (date == null) {
             date = LocalDate.now();
@@ -104,27 +98,52 @@ public class DashboardController {
                 .collect(Collectors.groupingBy(e -> e.getStartTime().getDayOfMonth()));
 
         model.addAttribute("user", user);
-        model.addAttribute("events", eventsByDay);
+        model.addAttribute("eventsByDay", eventsByDay);
         model.addAttribute("selectedDate", date);
 
         return "calendar";
     }
 
     /**
+     * Поиск события.
+     */
+    @GetMapping("/calendar/search")
+    public String searchEvents(@RequestParam("query") String query,
+                               Authentication authentication,
+                               Model model) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/";
+        }
+
+        User user = userService.findByUsername(authentication.getName())
+                .orElseThrow(UserNotFoundException::new);
+
+        List<EventDocument> results = eventSearchService.searchByTitle(query)
+                .stream()
+                .filter(e -> e.getUserId().equals(user.getId()))
+                .toList();
+
+        model.addAttribute("user", user);
+        model.addAttribute("results", results);
+        model.addAttribute("query", query);
+
+        return "calendar_search_results";
+    }
+
+    /**
      * Добавление события.
      */
     @PostMapping("/events")
-    @Operation(summary = "Создание нового события",
-            description = "Создает новое событие в календаре пользователя")
     public String createEvent(
-            @Parameter(description = "Название события", required = true) @RequestParam String title,
-            @Parameter(description = "Время начала события", required = true) @RequestParam LocalDateTime startTime,
-            @Parameter(description = "Время окончания события", required = true) @RequestParam LocalDateTime endTime,
-            @Parameter(description = "Аннотация события") @RequestParam(required = false) String annotation,
-            @Parameter(description = "Заметки к событию") @RequestParam(required = false) String notes,
+            @RequestParam String title,
+            @RequestParam LocalDateTime startTime,
+            @RequestParam LocalDateTime endTime,
+            @RequestParam(required = false) String annotation,
+            @RequestParam(required = false) String notes,
             Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         eventService.createEvent(title, startTime, endTime, annotation, notes, null, user);
         return "redirect:/dashboard";
@@ -134,16 +153,14 @@ public class DashboardController {
      * Добавление задачи.
      */
     @PostMapping("/tasks")
-    @Operation(summary = "Создание новой задачи",
-            description = "Создает новую задачу для пользователя")
     public String createTask(
-            @Parameter(description = "Название задачи", required = true) @RequestParam String title,
-            @Parameter(description = "Описание задачи") @RequestParam(required = false) String description,
-            @Parameter(description = "Приоритет задачи") @RequestParam Task.TaskPriority priority,
-            @Parameter(description = "Срок выполнения задачи") @RequestParam(required = false) LocalDateTime dueDate,
+            @RequestParam String title,
+            @RequestParam(required = false) String description,
+            @RequestParam TaskPriority priority,
+            @RequestParam(required = false) LocalDateTime dueDate,
                              Authentication authentication) {
         User user = userService.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(UserNotFoundException::new);
 
         taskService.createTask(title, description, priority, dueDate, user);
         return "redirect:/dashboard";
@@ -153,11 +170,8 @@ public class DashboardController {
      * Завершение задачи.
      */
     @PostMapping("/tasks/{taskId}/complete")
-    @Operation(summary = "Отметка задачи как выполненной",
-            description = "Отмечает задачу как выполненную по ID")
-    public String completeTask(
-            @Parameter(description = "ID задачи", required = true) @PathVariable Long taskId) {
-        taskService.updateTaskStatus(taskId, Task.TaskStatus.COMPLETED);
+    public String completeTask(@PathVariable Long taskId) {
+        taskService.updateTaskStatus(taskId, TaskStatus.COMPLETED);
         return "redirect:/dashboard";
     }
 }

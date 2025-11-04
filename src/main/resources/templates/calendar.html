@@ -12,6 +12,11 @@
     <a href="/logout">Logout</a>
 </div>
 
+<form th:action="@{/calendar/search}" method="get" class="search-form">
+    <input type="text" name="query" th:value="${query}" placeholder="Search events..." required>
+    <button type="submit">Search</button>
+</form>
+
 <div class="calendar-container">
     <div class="calendar-header">
         <h2 th:text="${selectedDate.month} + ' ' + ${selectedDate.year}">Month Year</h2>

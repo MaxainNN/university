@@ -3,6 +3,7 @@ package io.mkalugin.university.service;
 import io.mkalugin.university.entity.Event;
 import io.mkalugin.university.entity.User;
 import io.mkalugin.university.repository.EventRepository;
+import io.mkalugin.university.service.search.EventSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final EventSearchService eventSearchService;
 
     /**
      * Создание события.
@@ -38,7 +40,11 @@ public class EventService {
         event.setAnnotation(annotation);
         event.setNotes(notes);
         event.setReminderTime(reminderTime);
-        return eventRepository.save(event);
+
+        Event saved = eventRepository.save(event);
+        eventSearchService.indexEvent(saved);
+
+        return saved;
     }
 
     /**

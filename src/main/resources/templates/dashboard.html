@@ -18,21 +18,8 @@
 
     <div class="section">
         <h3>Quick Stats</h3>
-        <p>Total Events: <span th:text="${events.size()}">0</span></p>
         <p>Total Tasks: <span th:text="${tasks.size()}">0</span></p>
         <p>Overdue Tasks: <span th:text="${overdueTasks.size()}">0</span></p>
-    </div>
-
-    <div class="section">
-        <h3>Add New Event</h3>
-        <form th:action="@{/dashboard/events}" method="post">
-            <input type="text" name="title" placeholder="Event Title" required>
-            <input type="datetime-local" name="startTime" required>
-            <input type="datetime-local" name="endTime" required>
-            <input type="text" name="annotation" placeholder="Annotation">
-            <textarea name="notes" placeholder="Notes"></textarea>
-            <button type="submit">Add Event</button>
-        </form>
     </div>
 
     <div class="section">
@@ -52,15 +39,6 @@
     </div>
 
     <div class="section">
-        <h3>Upcoming Events</h3>
-        <div th:each="event : ${events}">
-            <h4 th:text="${event.title}">Event Title</h4>
-            <p th:text="${event.startTime}">Start Time</p>
-            <p th:text="${event.annotation}">Annotation</p>
-        </div>
-    </div>
-
-    <div class="section">
         <h3>Tasks</h3>
         <div th:each="task : ${tasks}">
             <div th:classappend="${task.status == 'COMPLETED'} ? 'task-completed' : ''">
@@ -73,7 +51,7 @@
                 <span th:if="${task.priority == 'URGENT'}" class="priority-urgent" th:text="${task.priority}"></span>
                 <span th:if="${task.priority == null}" class="priority-default">MEDIUM</span>
 
-                <span th:text="${#temporals.format(task.dueDate, 'yyyy-MM-dd HH:mm')}">Due Date</span>
+                <span th:text="${task.dueDate != null} ? ${#temporals.format(task.dueDate, 'yyyy-MM-dd HH:mm')} : 'No due date'">Due Date</span>
 
                 <form th:action="@{/dashboard/tasks/{id}/complete(id=${task.id})}"
                       method="post" th:if="${task.status != 'COMPLETED'}">
@@ -81,15 +59,16 @@
                 </form>
             </div>
         </div>
-    </div>
-    <div class="pagination">
-        <a th:if="${currentPage > 0}"
-           th:href="@{/dashboard(page=${currentPage - 1})}">&laquo; Previous</a>
 
-        <span th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}"></span>
+        <div class="pagination">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/dashboard/tasks(page=${currentPage - 1})}">&laquo; Previous</a>
 
-        <a th:if="${currentPage + 1 < totalPages}"
-           th:href="@{/dashboard(page=${currentPage + 1})}">Next &raquo;</a>
+            <span th:text="'Page ' + (${currentPage + 1}) + ' of ' + ${totalPages}"></span>
+
+            <a th:if="${currentPage + 1 < totalPages}"
+               th:href="@{/dashboard/tasks(page=${currentPage + 1})}">Next &raquo;</a>
+        </div>
     </div>
 </div>
 </body>
