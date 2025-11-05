@@ -9,6 +9,7 @@
 <div class="nav">
     <a href="/dashboard">Dashboard</a> |
     <a href="/calendar">Calendar</a> |
+    <a th:href="@{/dashboard/profile}">Profile</a> |
     <a href="/logout">Logout</a>
 </div>
 
@@ -17,49 +18,26 @@
     <button type="submit">Search</button>
 </form>
 
-<div class="calendar-container">
-    <div class="calendar-header">
-        <h2 th:text="${selectedDate.month} + ' ' + ${selectedDate.year}">Month Year</h2>
-        <div>
-            <form th:action="@{/calendar}" method="get" style="display:inline-block">
-                <input type="month" name="date" th:value="${selectedDate}" />
-                <button type="submit">Go</button>
-            </form>
-        </div>
-        <div class="view-buttons">
-            <button class="active" onclick="showView('month')">Month</button>
-            <button onclick="showView('week')">Week</button>
-            <button onclick="showView('day')">Day</button>
-        </div>
-    </div>
+<div class="calendar-header">
+    <a th:href="@{/calendar(date=${previousMonth})}" class="btn">&lt; Prev</a>
+    <h2 th:text="${#temporals.format(selectedDate, 'MMMM yyyy')}">November 2025</h2>
+    <a th:href="@{/calendar(date=${nextMonth})}" class="btn">Next &gt;</a>
+</div>
 
-    <div id="month-view" class="calendar-grid"
-         th:with="days=${#numbers.sequence(1, selectedDate.lengthOfMonth())}">
-        <div class="day-cell" th:each="day : ${days}"
-             th:classappend="${eventsByDay[day]} != null ? 'has-event' : ''">
-            <div class="date-number" th:text="${day}">1</div>
-            <div class="event-count" th:if="${eventsByDay[day]} != null"
-                 th:text="${#lists.size(eventsByDay[day])} + ' events'"></div>
-        </div>
-    </div>
+<div id="month-view" class="calendar-grid"
+     th:with="days=${#numbers.sequence(1, selectedDate.lengthOfMonth())}">
+    <div class="day-cell"
+         th:each="day : ${days}"
+         th:classappend="${eventsByDay[day]} != null ? 'has-event' : ''">
+        <div class="date-number" th:text="${day}">1</div>
 
-    <div id="week-view" style="display:none;">
-        <p>Week view coming soon...</p>
-    </div>
-    <div id="day-view" style="display:none;">
-        <p>Day view coming soon...</p>
+        <div class="event-list" th:if="${eventsByDay[day]} != null">
+            <div th:each="ev : ${eventsByDay[day]}">
+                <p th:text="${ev.title}"></p>
+            </div>
+        </div>
     </div>
 </div>
 
-<script>
-    function showView(view) {
-        document.getElementById('month-view').style.display = (view === 'month') ? 'grid' : 'none';
-        document.getElementById('week-view').style.display = (view === 'week') ? 'block' : 'none';
-        document.getElementById('day-view').style.display = (view === 'day') ? 'block' : 'none';
-
-        document.querySelectorAll('.view-buttons button').forEach(b => b.classList.remove('active'));
-        document.querySelector(`.view-buttons button[onclick="showView('${view}')"]`).classList.add('active');
-    }
-</script>
 </body>
 </html>

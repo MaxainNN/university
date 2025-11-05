@@ -10,6 +10,7 @@
 <div class="nav">
     <a th:href="@{/dashboard}">Dashboard</a>
     <a th:href="@{/dashboard/calendar}">Calendar</a>
+    <a th:href="@{/dashboard/profile}">Profile</a>
     <a th:href="@{/logout}">Logout</a>
 </div>
 
@@ -71,5 +72,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form[action*="/complete"]').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                const taskDiv = e.target.closest('div');
+                taskDiv.classList.add('task-completed');
+                taskDiv.style.transition = 'opacity 0.5s';
+                taskDiv.style.opacity = '0.5';
+            });
+        });
+    });
+</script>
+
 </body>
 </html>

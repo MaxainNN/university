@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Something went wrong</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h1 th:text="${status != null ? status : 500}">500</h1>
+    <h2>Something went wrong</h2>
+    <p th:text="${message != null ? message : 'Unexpected server error occurred.'}">
+        Unexpected server error occurred.
+    </p>
+    <a th:href="@{/dashboard}">Return to Dashboard</a>
+</div>
+</body>
+</html>

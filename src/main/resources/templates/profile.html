@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Profile</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="profile-card">
+        <h2>User Profile</h2>
+
+        <div th:if="${user != null}">
+            <div class="success">
+                <p>Welcome, <strong th:text="${user.username}">Username</strong>!</p>
+            </div>
+
+            <div class="info">
+                <h3>Session Information:</h3>
+                <p>
+                    <strong>Login Time:</strong>
+                    <span th:text="${#temporals.format(loginTime, 'dd.MM.yyyy HH:mm:ss')}">--</span>
+                </p>
+                <p>
+                    <strong>Current Time:</strong>
+                    <span th:text="${#temporals.format(currentTime, 'dd.MM.yyyy HH:mm:ss')}">--</span>
+                </p>
+                <p>
+                    <strong>Session ID:</strong>
+                    <span th:text="${sessionId}">--</span>
+                </p>
+            </div>
+
+            <div class="info">
+                <h3>Time since login:</h3>
+                <p th:text="${loginDuration} + ' hours'">0 hours</p>
+            </div>
+
+            <div class="info">
+                <h3>Account Info:</h3>
+                <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
+                <p><strong>Role:</strong> <span th:text="${user.role}">USER</span></p>
+            </div>
+        </div>
+
+        <div th:if="${user == null}" class="error">
+            <p>Access denied. Please log in.</p>
+            <a th:href="@{/login}">Go to Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

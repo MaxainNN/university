@@ -11,6 +11,7 @@ import io.mkalugin.university.service.EventService;
 import io.mkalugin.university.service.TaskService;
 import io.mkalugin.university.service.UserService;
 import io.mkalugin.university.service.search.EventSearchService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -89,8 +90,11 @@ public class DashboardController {
             date = LocalDate.now();
         }
 
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        LocalDate firstDayOfMonth = date.withDayOfMonth(1);
+        LocalDate lastDayOfMonth = date.withDayOfMonth(date.lengthOfMonth());
+
+        LocalDateTime start = firstDayOfMonth.atStartOfDay();
+        LocalDateTime end = lastDayOfMonth.plusDays(1).atStartOfDay();
 
         List<Event> events = eventService.getUserEventsByDateRange(user.getId(), start, end);
 
@@ -100,8 +104,37 @@ public class DashboardController {
         model.addAttribute("user", user);
         model.addAttribute("eventsByDay", eventsByDay);
         model.addAttribute("selectedDate", date);
+        model.addAttribute("previousMonth", date.minusMonths(1));
+        model.addAttribute("nextMonth", date.plusMonths(1));
 
         return "calendar";
+    }
+
+    @GetMapping("/profile")
+    public String profile(Authentication authentication, HttpSession session, Model model) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        User user = userService.findByUsername(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        LocalDateTime loginTime = (LocalDateTime) session.getAttribute("loginTime");
+        if (loginTime == null) {
+            loginTime = LocalDateTime.now();
+            session.setAttribute("loginTime", loginTime);
+        }
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        long durationHours = java.time.Duration.between(loginTime, currentTime).toHours();
+
+        model.addAttribute("user", user);
+        model.addAttribute("loginTime", loginTime);
+        model.addAttribute("currentTime", currentTime);
+        model.addAttribute("sessionId", session.getId());
+        model.addAttribute("loginDuration", durationHours);
+
+        return "profile";
     }
 
     /**

@@ -238,11 +238,19 @@ input, textarea, select {
 /* Выполнение задачи */
 
 .task-completed {
-    background-color: #f0f0f0;
-    color: #888;
     text-decoration: line-through;
-    border-left: 4px solid #4caf50;
-    transition: all 0.3s ease-in-out;
+    opacity: 0.6;
+    background-color: #e0ffe0;
+    transition: all 0.3s ease;
+}
+
+.section .task-completed h4,
+.section .task-completed p {
+    color: #555;
+}
+
+.task-completed form {
+    display: none;
 }
 
 /* Пагинация */
@@ -336,6 +344,7 @@ input, textarea, select {
 .search-form {
     margin-bottom: 1rem;
 }
+
 .search-form input[type="text"] {
     padding: 0.4rem 0.6rem;
     font-size: 1rem;
@@ -344,6 +353,7 @@ input, textarea, select {
     width: 200px;
     margin-right: 0.5rem;
 }
+
 .search-form button {
     padding: 0.4rem 0.8rem;
     font-size: 1rem;
@@ -361,9 +371,130 @@ input, textarea, select {
     list-style: none;
     padding-left: 0;
 }
+
 .search-results li {
     margin-bottom: 0.5rem;
 }
+
 .search-results strong {
     margin-right: 0.5rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    padding: 20px;
+}
+
+.day-cell {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 100px;
+    background: #f9f9f9;
+    transition: background 0.2s;
+}
+
+.day-cell:hover {
+    background: #f0f0f0;
+}
+
+.day-cell.has-event {
+    border-color: #6c63ff;
+    background: #f0f5ff;
+}
+
+.date-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.event-list p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.btn {
+    padding: 5px 10px;
+    background: #6c63ff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.profile-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    max-width: 600px;
+    margin: 40px auto;
+    border-radius: 10px;
+    background: #fafafa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.profile-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-card .info {
+    margin: 15px 0;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+.error-container {
+    text-align: center;
+    margin-top: 100px;
+    font-family: Arial, sans-serif;
+}
+
+.error-container h1 {
+    font-size: 100px;
+    margin-bottom: 10px;
+    color: #ff4d4f;
+}
+
+.error-container h2 {
+    font-size: 32px;
+    color: #333;
+}
+
+.error-container p {
+    color: #555;
+    margin: 20px 0;
+}
+
+.error-container a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.error-container a:hover {
+    background-color: #0056b3;
+}
+
+.error-icon {
+    font-size: 60px;
+    color: #ff4d4f;
 }
