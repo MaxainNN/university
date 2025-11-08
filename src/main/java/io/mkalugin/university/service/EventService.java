@@ -35,6 +35,8 @@ public class EventService {
      * @return созданная сущность события
      */
     public Event createEvent(EventCreateRequest request) {
+        log.info("Creating event");
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -54,6 +56,8 @@ public class EventService {
      * @return список событий пользователя
      */
     public List<Event> getUserEventsByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
+        log.info("Getting events by date");
+
         return eventRepository.findByUserIdAndDateRange(userId, start, end);
     }
 }

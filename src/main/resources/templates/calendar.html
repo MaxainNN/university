@@ -19,25 +19,122 @@
 </form>
 
 <div class="calendar-header">
-    <a th:href="@{/calendar(date=${previousMonth})}" class="btn">&lt; Prev</a>
+    <a th:href="@{/dashboard/calendar(date=${previousMonth})}" class="btn">&lt; Prev</a>
     <h2 th:text="${#temporals.format(selectedDate, 'MMMM yyyy')}">November 2025</h2>
-    <a th:href="@{/calendar(date=${nextMonth})}" class="btn">Next &gt;</a>
+    <a th:href="@{/dashboard/calendar(date=${nextMonth})}" class="btn">Next &gt;</a>
 </div>
 
-<div id="month-view" class="calendar-grid"
-     th:with="days=${#numbers.sequence(1, selectedDate.lengthOfMonth())}">
-    <div class="day-cell"
-         th:each="day : ${days}"
-         th:classappend="${eventsByDay[day]} != null ? 'has-event' : ''">
+<!-- Добавим выбор месяца через селект -->
+<div class="month-selector">
+    <form th:action="@{/dashboard/calendar}" method="get" class="month-form">
+        <select name="date" onchange="this.form.submit()">
+            <option th:each="month : ${availableMonths}"
+                    th:value="${month}"
+                    th:text="${#temporals.format(month, 'MMMM yyyy')}"
+                    th:selected="${month == selectedDate}">
+            </option>
+        </select>
+    </form>
+</div>
+
+<div id="month-view" class="calendar-grid">
+    <div class="day-header">Mon</div>
+    <div class="day-header">Tue</div>
+    <div class="day-header">Wed</div>
+    <div class="day-header">Thu</div>
+    <div class="day-header">Fri</div>
+    <div class="day-header">Sat</div>
+    <div class="day-header">Sun</div>
+
+    <div th:each="i : ${#numbers.sequence(1, firstDayOfWeek - 1)}"
+         class="day-cell empty"></div>
+
+    <div th:each="day : ${#numbers.sequence(1, daysInMonth)}"
+         class="day-cell"
+         th:classappend="${eventsByDay[day] != null ? 'has-event' : ''}">
+
         <div class="date-number" th:text="${day}">1</div>
 
-        <div class="event-list" th:if="${eventsByDay[day]} != null">
-            <div th:each="ev : ${eventsByDay[day]}">
-                <p th:text="${ev.title}"></p>
+        <div class="event-list" th:if="${eventsByDay[day] != null}">
+            <div class="event-item">
+                <span class="event-dot" th:title="${eventsByDay[day].size()} events"></span>
+                <span class="event-count" th:text="${eventsByDay[day].size()}">1</span>
             </div>
         </div>
     </div>
 </div>
+
+<div id="dayModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3 id="modalDate"></h3>
+        <div id="modalEvents"></div>
+    </div>
+</div>
+
+<script>
+    function showDayEvents(day, month, year, events) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        document.getElementById('modalDate').textContent =
+            'Events for ' + day + ' ' + monthNames[month] + ' ' + year;
+
+        const modalEvents = document.getElementById('modalEvents');
+        let eventsHtml = '';
+
+        if (events && events.length > 0) {
+            events.forEach(event => {
+                const startTime = new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const endTime = new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                eventsHtml += `
+                    <div class="event-detail">
+                        <h4>${event.title}</h4>
+                        <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+                        ${event.annotation ? `<p><strong>Annotation:</strong> ${event.annotation}</p>` : ''}
+                        ${event.notes ? `<p><strong>Notes:</strong> ${event.notes}</p>` : ''}
+                    </div>
+                    <hr>
+                `;
+            });
+        } else {
+            eventsHtml = '<p>No events for this day.</p>';
+        }
+
+        modalEvents.innerHTML = eventsHtml;
+        document.getElementById('dayModal').style.display = 'block';
+    }
+
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('dayModal').style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('dayModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dayCells = document.querySelectorAll('.day-cell.has-event');
+        const eventsData = JSON.parse('[[${eventsJson}]]');
+        const selectedDate = new Date('[[${selectedDate}]]');
+
+        dayCells.forEach(cell => {
+            cell.style.cursor = 'pointer';
+            cell.addEventListener('click', function() {
+                const day = this.querySelector('.date-number').textContent;
+
+                if (eventsData[day]) {
+                    showDayEvents(day, selectedDate.getMonth(), selectedDate.getFullYear(), eventsData[day]);
+                }
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

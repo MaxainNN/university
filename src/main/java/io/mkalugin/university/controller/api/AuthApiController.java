@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @Tag(name = "Authentication API", description = "REST API для аутентификации")
 @RequiredArgsConstructor
-@Slf4j
 public class AuthApiController {
 
     private final UserService userService;
@@ -38,8 +36,6 @@ public class AuthApiController {
     public RegisterResponse register(
             @Parameter(description = "Данные для регистрации") @RequestBody RegisterRequest request,
             HttpServletRequest servletRequest) {
-        log.info("API POST /api/register called for username={}, email={}", request.getUsername(), request.getEmail());
-
         userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
         userService.authenticateUser(request.getUsername(), request.getPassword(), servletRequest);
         return new RegisterResponse(request.getUsername(), request.getPassword());

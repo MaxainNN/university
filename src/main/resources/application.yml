@@ -53,8 +53,8 @@ spring:
           min-idle: 0
           max-wait: -1ms
   mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 2525
+    host: smtp.yandex.ru
+    port: 465
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     properties:

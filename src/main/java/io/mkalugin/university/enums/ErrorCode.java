@@ -36,7 +36,12 @@ public enum ErrorCode {
     /**
      * Ошибка при аутентификации
      */
-    AUTHENTICATION_FAILED("Auto-login failed");
+    AUTHENTICATION_FAILED("Auto-login failed"),
+
+    /**
+     * Задача не найдена
+     */
+    TASK_NOT_FOUND("Task not found");
 
     /**
      * Строковое представление ошибки

@@ -6,6 +6,7 @@ import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
 import io.mkalugin.university.enums.TaskPriority;
 import io.mkalugin.university.enums.TaskStatus;
+import io.mkalugin.university.exception.TaskNotFoundException;
 import io.mkalugin.university.exception.UserNotFoundException;
 import io.mkalugin.university.mapper.TaskMapper;
 import io.mkalugin.university.repository.TaskRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +46,10 @@ public class TaskService {
      * @return созданная сущность задачи
      */
     @CacheEvict(allEntries = true)
+    @Transactional
     public Task createTask(TaskCreateRequest request) {
+        log.debug("Creating task {} for userId = {}", request.getTitle(), request.getUserId());
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -61,8 +66,9 @@ public class TaskService {
      * @param size количество элементов
      * @return спискок задач пользователя
      */
-    //@Cacheable(key = "{#user.id, #page, #size}")
     public Page<TaskResponse> getTasksByUser(User user, int page, int size) {
+        log.info("Getting tasks for userId = {} with pagination", user.getId());
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate").descending());
         return taskRepository.findAllByUser(user, pageable)
                 .map(TaskResponse::new);
@@ -77,6 +83,7 @@ public class TaskService {
      */
     @Cacheable(key = "{#userId, #status}")
     public List<Task> getTasksByStatus(Long userId, TaskStatus status) {
+        log.info("Getting tasks by status for userId =  {}", userId);
         return taskRepository.findByUserIdAndStatus(userId, status);
     }
 
@@ -89,17 +96,19 @@ public class TaskService {
      */
     @Cacheable(key = "{#userId, #priority}")
     public List<Task> getTasksByPriority(Long userId, TaskPriority priority) {
+        log.info("Getting tasks by priority for userId = {}", userId);
         return taskRepository.findByUserIdAndPriority(userId, priority);
     }
 
     /**
-     * Получение списка актуальных задач.
+     * Получение списка просроченных задач.
      *
      * @param userId идентификатор пользователя
      * @return список задач
      */
     @Cacheable(key = "#userId + '_overdue'")
     public List<Task> getOverdueTasks(Long userId) {
+        log.info("Getting list of overdue tasks for userId = {}", userId);
         return taskRepository.findOverdueTasks(userId);
     }
 
@@ -111,9 +120,12 @@ public class TaskService {
      * @return обновленная сущность задачи
      */
     @CacheEvict(allEntries = true)
+    @Transactional
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
+        log.info("Updating status of task with id {}", taskId);
+
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(TaskNotFoundException::new);
 
         task.setStatus(status);
         if (status == TaskStatus.COMPLETED) {
@@ -121,5 +133,36 @@ public class TaskService {
         }
 
         return taskRepository.save(task);
+    }
+
+    /**
+     * Получение списка задач по приоритету и статусу.
+     *
+     * @param userId идентификатор пользователя
+     * @param status статус
+     * @param priority приоритет
+     * @return список задач
+     */
+    @Cacheable(key = "{#userId, #status, #priority}")
+    public List<TaskResponse> searchTasks(Long userId, TaskStatus status, TaskPriority priority) {
+        log.info("Getting task for userId = {} and status {} and priority = {}", userId, status, priority);
+
+        List<Task> tasks;
+
+        if (status != null && priority != null) {
+            tasks = taskRepository.findByUserIdAndStatusAndPriority(userId, status, priority);
+        } else if (status != null) {
+            tasks = taskRepository.findByUserIdAndStatus(userId, status);
+        } else if (priority != null) {
+            tasks = taskRepository.findByUserIdAndPriority(userId, priority);
+        } else {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(UserNotFoundException::new);
+            return getTasksByUser(user, 0, Integer.MAX_VALUE).getContent();
+        }
+
+        return tasks.stream()
+                .map(TaskResponse::new)
+                .toList();
     }
 }

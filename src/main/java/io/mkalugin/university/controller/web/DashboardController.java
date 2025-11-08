@@ -1,5 +1,9 @@
 package io.mkalugin.university.controller.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mkalugin.university.dto.EventCreateRequest;
 import io.mkalugin.university.dto.TaskCreateRequest;
 import io.mkalugin.university.dto.TaskResponse;
@@ -17,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,10 +83,11 @@ public class DashboardController {
     /**
      * Календарь пользователя.
      */
-    @GetMapping("/calendar")
+    @GetMapping(value = "/calendar", produces = MediaType.TEXT_HTML_VALUE)
     public String calendar(@RequestParam(required = false)
                            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                           Authentication authentication, Model model) {
+                           Authentication authentication,
+                           Model model) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/";
         }
@@ -103,11 +110,40 @@ public class DashboardController {
         Map<Integer, List<Event>> eventsByDay = events.stream()
                 .collect(Collectors.groupingBy(e -> e.getStartTime().getDayOfMonth()));
 
+        int firstDayOfWeek = firstDayOfMonth.getDayOfWeek().getValue();
+
+        List<LocalDate> availableMonths = new ArrayList<>();
+        LocalDate startMonth = LocalDate.now().minusMonths(6);
+        LocalDate endMonth = LocalDate.now().plusMonths(6);
+
+        LocalDate currentMonth = startMonth.withDayOfMonth(1);
+        while (!currentMonth.isAfter(endMonth)) {
+            availableMonths.add(currentMonth);
+            currentMonth = currentMonth.plusMonths(1);
+        }
+
+        Map<String, List<Event>> eventsForJson = events.stream()
+                .collect(Collectors.groupingBy(e -> String.valueOf(e.getStartTime().getDayOfMonth())));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        try {
+            String eventsJson = objectMapper.writeValueAsString(eventsForJson);
+            model.addAttribute("eventsJson", eventsJson);
+        } catch (JsonProcessingException e) {
+            model.addAttribute("eventsJson", "{}");
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("eventsByDay", eventsByDay);
         model.addAttribute("selectedDate", date);
         model.addAttribute("previousMonth", date.minusMonths(1));
         model.addAttribute("nextMonth", date.plusMonths(1));
+        model.addAttribute("firstDayOfWeek", firstDayOfWeek);
+        model.addAttribute("daysInMonth", date.lengthOfMonth());
+        model.addAttribute("availableMonths", availableMonths);
 
         return "calendar";
     }

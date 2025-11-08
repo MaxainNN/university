@@ -33,6 +33,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Тест на {@link UserService}
+ *
+ * <p> Сервис для регистрации
+ * и авторизации пользователя </p>
+ */
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("User service tests")

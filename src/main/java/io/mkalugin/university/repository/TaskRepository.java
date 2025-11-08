@@ -46,11 +46,21 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserIdAndPriority(Long userId, TaskPriority priority);
 
     /**
-     * Получение списка актуальных задач.
+     * Получение списка просроченных задач.
      *
      * @param userId идентификатор пользователя
      * @return список задач
      */
     @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.dueDate < CURRENT_TIMESTAMP AND t.status != 'COMPLETED'")
     List<Task> findOverdueTasks(Long userId);
+
+    /**
+     * Получение списка задач по приоритету и статусу.
+     *
+     * @param userId идентификатор пользователя
+     * @param status статус
+     * @param priority приоритет
+     * @return список задач
+     */
+    List<Task> findByUserIdAndStatusAndPriority(Long userId, TaskStatus status, TaskPriority priority);
 }

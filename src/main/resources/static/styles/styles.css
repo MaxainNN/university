@@ -42,6 +42,11 @@ body.dashboard-page {
     background-size: cover;
 }
 
+body.calendar-page {
+    background: url("../images/dash_img.jpg") no-repeat center center fixed;
+    background-size: cover;
+}
+
 body.error-page {
     margin: 0;
     padding: 0;
@@ -331,41 +336,128 @@ input, textarea, select {
     margin-right: 0.5rem;
 }
 
+.calendar-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px;
+    margin-bottom: 20px;
+}
+
+.month-selector {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.month-form select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    padding: 20px;
+    gap: 1px;
+    background-color: #ddd;
+    border: 1px solid #ddd;
+}
+
+.day-header {
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
 }
 
 .day-cell {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 10px;
+    background-color: white;
     min-height: 100px;
-    background: #f9f9f9;
-    transition: background 0.2s;
+    padding: 5px;
+    position: relative;
+    border: 1px solid #eee;
 }
 
-.day-cell:hover {
-    background: #f0f0f0;
+.day-cell.empty {
+    background-color: #f9f9f9;
 }
 
 .day-cell.has-event {
-    border-color: #6c63ff;
-    background: #f0f5ff;
+    background-color: #e8f5e8;
 }
 
 .date-number {
     font-weight: bold;
     margin-bottom: 5px;
+}
+
+.event-list {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.event-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #007bff;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+}
+
+.event-count {
+    font-size: 10px;
+    color: #666;
+    margin-left: 4px;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #aaa;
+}
+
+.day-cell:hover {
+    background: #f0f0f0;
 }
 
 .event-list p {
