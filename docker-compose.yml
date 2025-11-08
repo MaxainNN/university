@@ -2,37 +2,6 @@ version: '3.8'
 
 services:
 
-#  app:
-#    build: .
-#    container_name: calendar_app
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      redis:
-#        condition: service_started
-#      elasticsearch:
-#        condition: service_started
-#    environment:
-#      SPRING_PROFILES_ACTIVE: docker
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/calendar_db
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD: password
-#      SPRING_REDIS_HOST: redis
-#      SPRING_REDIS_PORT: 6379
-#      SPRING_MAIL_HOST: maildev
-#      SPRING_MAIL_PORT: 1025
-#    ports:
-#      - "8080:8080"
-#    restart: unless-stopped
-#
-#  maildev:
-#    image: maildev/maildev
-#    container_name: maildev
-#    ports:
-#      - "1080:1080"   # Web UI
-#      - "1025:1025"   # SMTP
-#    restart: unless-stopped
-
   postgres:
     image: postgres:15
     container_name: postgres_db

@@ -9,6 +9,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Реализация сервиса для загрузки данных пользователя в Spring Security.
+ *
+ * <p>Данный сервис отвечает за аутентификацию пользователей путем поиска в репозитории
+ * и преобразования сущности пользователя в объект {@link UserDetails}, используемый Spring Security.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -16,6 +22,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Загружает данные пользователя по имени пользователя для аутентификации.
+     *
+     * <p>Метод выполняет поиск пользователя в репозитории по указанному имени пользователя.
+     * Если пользователь найден, создается объект {@link UserDetails} с данными пользователя
+     * и ролью "USER". Если пользователь не найден, выбрасывается исключение.
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Attempting to load user by username: {}", username);

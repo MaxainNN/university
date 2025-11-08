@@ -1,11 +1,6 @@
-/* ===========================================
-   🌿 Global Reset & Variables
-   =========================================== */
 *, ::before, ::after {
     box-sizing: border-box;
 }
-
-/* Интерфейсный шрифт */
 
 @font-face {
     font-family: "Inter";
@@ -14,8 +9,6 @@
     font-style: normal;
     font-display: swap;
 }
-
-/* Основные цвета темы */
 
 body {
     --color-primary: #174536;
@@ -34,10 +27,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===========================================
-   🌆 Backgrounds
-   =========================================== */
-
 body.login-page,
 body.register-page {
     display: flex;
@@ -49,13 +38,24 @@ body.register-page {
 }
 
 body.dashboard-page {
-    background: url("../images/dash_img.jpeg") no-repeat center center fixed;
+    background: url("../images/dash_img.jpg") no-repeat center center fixed;
     background-size: cover;
 }
 
-/* ===========================================
-   🧱 Layout Containers
-   =========================================== */
+body.error-page {
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f8;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body.profile-page {
+    background: url("../images/dash_img.jpg") no-repeat center center fixed;
+    background-size: cover;
+}
 
 .container {
     max-width: 1200px;
@@ -65,8 +65,6 @@ body.dashboard-page {
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
-
-/* Панель навигации */
 
 .nav {
     background-color: rgba(255, 255, 255, 0.85);
@@ -80,8 +78,6 @@ body.dashboard-page {
     font-weight: 500;
 }
 
-/* Секции контента */
-
 .section {
     background: #fff;
     border-radius: 10px;
@@ -89,10 +85,6 @@ body.dashboard-page {
     padding: 20px;
     border: 1px solid #ddd;
 }
-
-/* ===========================================
-   🔥 Priorities
-   =========================================== */
 
 .priority-low {
     color: #28a745 !important;
@@ -118,10 +110,6 @@ body.dashboard-page {
 .priority-default {
     color: #6c757d !important;
 }
-
-/* ===========================================
-   🧍 Login & Register Forms
-   =========================================== */
 
 .auth-form {
     width: 400px;
@@ -170,7 +158,6 @@ body.dashboard-page {
     background-color: #0f3528;
 }
 
-/* Ошибки и уведомления */
 .auth-form .error {
     color: var(--color-error);
     margin-top: 10px;
@@ -192,9 +179,6 @@ body.dashboard-page {
     text-decoration: underline;
 }
 
-/* =========================
-   Dashboard Layout Styling
-   ========================= */
 .dashboard-page .container {
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: 12px;
@@ -212,7 +196,6 @@ body.dashboard-page {
     text-decoration: underline;
 }
 
-/* Buttons & inputs */
 button {
     background-color: var(--color-link);
     color: #fff;
@@ -235,8 +218,6 @@ input, textarea, select {
     border: 1px solid #ccc;
 }
 
-/* Выполнение задачи */
-
 .task-completed {
     text-decoration: line-through;
     opacity: 0.6;
@@ -252,8 +233,6 @@ input, textarea, select {
 .task-completed form {
     display: none;
 }
-
-/* Пагинация */
 
 .pagination {
     display: flex;
@@ -284,32 +263,6 @@ input, textarea, select {
     border-radius: 10px;
 }
 
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-top: 20px;
-}
-
-.day-cell {
-    border: 1px solid #ddd;
-    min-height: 80px;
-    padding: 5px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    position: relative;
-}
-
-.day-cell.has-event {
-    background-color: #d1f0d1;
-}
-
 .day-cell .date-number {
     font-weight: bold;
 }
@@ -338,8 +291,6 @@ input, textarea, select {
 .view-buttons button.active {
     background-color: var(--color-secondary);
 }
-
-/* Input in search page */
 
 .search-form {
     margin-bottom: 1rem;
@@ -459,42 +410,52 @@ input, textarea, select {
 }
 
 .error-container {
+    background: white;
+    padding: 40px 60px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     text-align: center;
-    margin-top: 100px;
-    font-family: Arial, sans-serif;
+    max-width: 600px;
+    width: 90%;
+}
+
+.error-icon {
+    font-size: 70px;
+    color: #ff4d4f;
+    margin-bottom: 10px;
 }
 
 .error-container h1 {
-    font-size: 100px;
-    margin-bottom: 10px;
+    font-size: 90px;
+    margin: 0;
     color: #ff4d4f;
 }
 
 .error-container h2 {
-    font-size: 32px;
+    font-size: 28px;
     color: #333;
+    margin: 10px 0;
 }
 
 .error-container p {
-    color: #555;
-    margin: 20px 0;
+    color: #666;
+    margin: 20px 0 30px;
+    font-size: 16px;
 }
 
 .error-container a {
-    display: inline-block;
-    padding: 10px 20px;
+    display: inline-grid;
+    margin: 15px;
+    padding: 12px 28px;
     background-color: #007bff;
     color: white;
     text-decoration: none;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .error-container a:hover {
     background-color: #0056b3;
-}
-
-.error-icon {
-    font-size: 60px;
-    color: #ff4d4f;
+    transform: translateY(-1px);
 }

@@ -1,12 +1,20 @@
 package io.mkalugin.university.service;
 
+import io.mkalugin.university.dto.TaskCreateRequest;
+import io.mkalugin.university.dto.TaskResponse;
 import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
 import io.mkalugin.university.enums.TaskPriority;
 import io.mkalugin.university.enums.TaskStatus;
+import io.mkalugin.university.exception.UserNotFoundException;
+import io.mkalugin.university.mapper.TaskMapper;
 import io.mkalugin.university.repository.TaskRepository;
+import io.mkalugin.university.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,26 +30,25 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "tasks")
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+    private final UserRepository userRepository;
 
     /**
      * Создание задачи.
      *
-     * @param title заголовок
-     * @param description описание
-     * @param dueDate срок выполнения
-     * @param priority приоритет
-     * @param user пользователь
+     * @param request запрос на создание задачи
      * @return созданная сущность задачи
      */
-    public Task createTask(String title, String description, TaskPriority priority,
-                           LocalDateTime dueDate, User user) {
-        Task task = new Task(title, user);
-        task.setDescription(description);
-        task.setPriority(priority);
-        task.setDueDate(dueDate);
+    @CacheEvict(allEntries = true)
+    public Task createTask(TaskCreateRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(UserNotFoundException::new);
+
+        Task task = taskMapper.toEntity(request, user);
         return taskRepository.save(task);
     }
 
@@ -54,9 +61,11 @@ public class TaskService {
      * @param size количество элементов
      * @return спискок задач пользователя
      */
-    public Page<Task> getTasksByUser(User user, int page, int size) {
+    //@Cacheable(key = "{#user.id, #page, #size}")
+    public Page<TaskResponse> getTasksByUser(User user, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("dueDate").descending());
-        return taskRepository.findAllByUser(user, pageable);
+        return taskRepository.findAllByUser(user, pageable)
+                .map(TaskResponse::new);
     }
 
     /**
@@ -66,6 +75,7 @@ public class TaskService {
      * @param status статус
      * @return список задач
      */
+    @Cacheable(key = "{#userId, #status}")
     public List<Task> getTasksByStatus(Long userId, TaskStatus status) {
         return taskRepository.findByUserIdAndStatus(userId, status);
     }
@@ -77,6 +87,7 @@ public class TaskService {
      * @param priority приоритет
      * @return список задач
      */
+    @Cacheable(key = "{#userId, #priority}")
     public List<Task> getTasksByPriority(Long userId, TaskPriority priority) {
         return taskRepository.findByUserIdAndPriority(userId, priority);
     }
@@ -87,6 +98,7 @@ public class TaskService {
      * @param userId идентификатор пользователя
      * @return список задач
      */
+    @Cacheable(key = "#userId + '_overdue'")
     public List<Task> getOverdueTasks(Long userId) {
         return taskRepository.findOverdueTasks(userId);
     }
@@ -98,6 +110,7 @@ public class TaskService {
      * @param status статус
      * @return обновленная сущность задачи
      */
+    @CacheEvict(allEntries = true)
     public Task updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
@@ -106,29 +119,6 @@ public class TaskService {
         if (status == TaskStatus.COMPLETED) {
             task.setCompletedAt(LocalDateTime.now());
         }
-
-        return taskRepository.save(task);
-    }
-
-    /**
-     * Обновление задачи.
-     *
-     * @param taskId идентификатор задачи
-     * @param title заголовок
-     * @param description описание
-     * @param priority приритет
-     * @param dueDate дата выполнения
-     * @return обновленная сущность задачи
-     */
-    public Task updateTask(Long taskId, String title, String description,
-                           TaskPriority priority, LocalDateTime dueDate) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setPriority(priority);
-        task.setDueDate(dueDate);
 
         return taskRepository.save(task);
     }

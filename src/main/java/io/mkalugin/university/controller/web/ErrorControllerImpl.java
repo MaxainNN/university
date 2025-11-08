@@ -7,9 +7,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * Контроллер для обработки ошибок приложения.
+ * Обрабатывает все ошибки и отображает страницу с информацией об ошибке.
+ */
 @Controller
 public class ErrorControllerImpl implements ErrorController {
 
+    /**
+     * Обрабатывает ошибки и отображает страницу ошибки.
+     *
+     * @param request HTTP запрос
+     * @param model модель для передачи данных в представление
+     * @return шаблон страницы ошибки
+     */
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request, Model model) {
         Object statusCode = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);

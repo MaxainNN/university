@@ -68,16 +68,6 @@ public class UserService {
     }
 
     /**
-     * Нахождение пользователя по идентификатору.
-     *
-     * @param id идентификатор пользователя
-     * @return пользователь с указанным идентификатором
-     */
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    /**
      * Обновление пользователя.
      *
      * @param userId идентификатор пользователя

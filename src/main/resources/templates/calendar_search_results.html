@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/styles/styles.css">
 </head>
-<body>
+<body class="calendar-search-page">
+
+<div class="nav">
+    <a th:href="@{/dashboard}">Dashboard</a>
+    <a th:href="@{/dashboard/calendar}">Calendar</a>
+    <a th:href="@{/dashboard/profile}">Profile</a>
+    <a th:href="@{/logout}">Logout</a>
+</div>
+
 <div class="search-results">
     <form th:action="@{/calendar/search}" method="get" class="search-form">
         <input type="text" name="query" th:value="${query}" placeholder="Search events..." required>

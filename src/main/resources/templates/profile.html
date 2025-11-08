@@ -2,10 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User Profile</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/styles/styles.css}">
 </head>
-<body>
-<div th:replace="fragments/header :: header"></div>
+<body class="profile-page">
+
+<div class="nav">
+    <a th:href="@{/dashboard}">Dashboard</a>
+    <a th:href="@{/dashboard/calendar}">Calendar</a>
+    <a th:href="@{/dashboard/profile}">Profile</a>
+    <a th:href="@{/logout}">Logout</a>
+</div>
 
 <div class="container">
     <div class="profile-card">
@@ -40,7 +46,6 @@
             <div class="info">
                 <h3>Account Info:</h3>
                 <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
-                <p><strong>Role:</strong> <span th:text="${user.role}">USER</span></p>
             </div>
         </div>
 

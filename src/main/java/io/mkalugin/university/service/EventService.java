@@ -1,8 +1,12 @@
 package io.mkalugin.university.service;
 
+import io.mkalugin.university.dto.EventCreateRequest;
 import io.mkalugin.university.entity.Event;
 import io.mkalugin.university.entity.User;
+import io.mkalugin.university.exception.UserNotFoundException;
+import io.mkalugin.university.mapper.EventMapper;
 import io.mkalugin.university.repository.EventRepository;
+import io.mkalugin.university.repository.UserRepository;
 import io.mkalugin.university.service.search.EventSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,41 +24,25 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
+    private final UserRepository userRepository;
     private final EventSearchService eventSearchService;
 
     /**
      * Создание события.
      *
-     * @param title заголовок
-     * @param startTime дата начала
-     * @param endTime дата окончания
-     * @param annotation аннотация
-     * @param notes заметка
-     * @param reminderTime время напоминания
-     * @param user пользователь
+     * @param request запрос на создание события
      * @return созданная сущность события
      */
-    public Event createEvent(String title, LocalDateTime startTime, LocalDateTime endTime,
-                             String annotation, String notes, LocalDateTime reminderTime, User user) {
-        Event event = new Event(title, startTime, endTime, user);
-        event.setAnnotation(annotation);
-        event.setNotes(notes);
-        event.setReminderTime(reminderTime);
+    public Event createEvent(EventCreateRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(UserNotFoundException::new);
 
+        Event event = eventMapper.toEntity(request, user);
         Event saved = eventRepository.save(event);
         eventSearchService.indexEvent(saved);
 
         return saved;
-    }
-
-    /**
-     * Получение списка событий по идентификатору пользователя.
-     *
-     * @param userId идентификатор пользователя
-     * @return список событий пользователя
-     */
-    public List<Event> getUserEvents(Long userId) {
-        return eventRepository.findByUserIdOrderByStartTime(userId);
     }
 
     /**
@@ -67,31 +55,5 @@ public class EventService {
      */
     public List<Event> getUserEventsByDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
         return eventRepository.findByUserIdAndDateRange(userId, start, end);
-    }
-
-    /**
-     * Обновление события.
-     *
-     * @param eventId идентификатор события
-     * @param startTime дата начала
-     * @param endTime дата окончания
-     * @param annotation аннотация
-     * @param notes заметка
-     * @param reminderTime время напоминания
-     * @return обвновленная сущность события
-     */
-    public Event updateEvent(Long eventId, String title, LocalDateTime startTime, LocalDateTime endTime,
-                             String annotation, String notes, LocalDateTime reminderTime) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-
-        event.setTitle(title);
-        event.setStartTime(startTime);
-        event.setEndTime(endTime);
-        event.setAnnotation(annotation);
-        event.setNotes(notes);
-        event.setReminderTime(reminderTime);
-
-        return eventRepository.save(event);
     }
 }

@@ -20,23 +20,21 @@ public class TaskReminderScheduler {
     private final TaskRepository taskRepository;
     private final EmailService emailService;
 
-    // Раз в час
-    @Scheduled(fixedRate = 60 * 60 * 1000)
+    @Scheduled(cron = "${scheduler.reminder-cron}")
     public void sendTaskReminders() {
         log.info("Running task reminder scheduler");
 
         userRepository.findAll().forEach(user -> {
-            if (user.getEmail() == null || user.getEmail().isBlank()) return;
 
-//            var pendingTasks = taskRepository.findByUserAndStatusNot(user, "COMPLETED");
-//            if (pendingTasks.isEmpty()) return;
+            var overdueTasks = taskRepository.findOverdueTasks(user.getId());
+            if (overdueTasks.isEmpty()) return;
 
             StringBuilder sb = new StringBuilder("Привет, " + user.getUsername() + "!\n\n");
             sb.append("Твои незавершённые задачи:\n");
-//            pendingTasks.forEach(task -> sb.append("• ").append(task.getTitle())
-//                    .append(task.getDueDate() != null ? " (до " + task.getDueDate() + ")" : "")
-//                    .append("\n"));
-            sb.append("\nУспей завершить их!");
+            overdueTasks.forEach(task -> sb.append("• ").append(task.getTitle())
+                    .append(task.getDueDate() != null ? " (до " + task.getDueDate() + ")" : "")
+                    .append("\n"));
+            sb.append("\nПостарайся завершить их!");
 
             emailService.sendEmail(user.getEmail(), "Напоминание о задачах", sb.toString());
         });

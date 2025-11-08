@@ -1,10 +1,12 @@
 package io.mkalugin.university.controller.web;
 
+import io.mkalugin.university.dto.EventCreateRequest;
+import io.mkalugin.university.dto.TaskCreateRequest;
+import io.mkalugin.university.dto.TaskResponse;
 import io.mkalugin.university.entity.Event;
 import io.mkalugin.university.entity.Task;
 import io.mkalugin.university.entity.User;
 import io.mkalugin.university.entity.documents.EventDocument;
-import io.mkalugin.university.enums.TaskPriority;
 import io.mkalugin.university.enums.TaskStatus;
 import io.mkalugin.university.exception.UserNotFoundException;
 import io.mkalugin.university.service.EventService;
@@ -59,7 +61,7 @@ public class DashboardController {
         User user = userService.findByUsername(authentication.getName())
                 .orElseThrow(UserNotFoundException::new);
 
-        Page<Task> taskPage = taskService.getTasksByUser(user, page, 10);
+        Page<TaskResponse> taskPage = taskService.getTasksByUser(user, page, 10);
 
         model.addAttribute("user", user);
         model.addAttribute("tasks", taskPage.getContent());
@@ -168,17 +170,8 @@ public class DashboardController {
      * Добавление события.
      */
     @PostMapping("/events")
-    public String createEvent(
-            @RequestParam String title,
-            @RequestParam LocalDateTime startTime,
-            @RequestParam LocalDateTime endTime,
-            @RequestParam(required = false) String annotation,
-            @RequestParam(required = false) String notes,
-            Authentication authentication) {
-        User user = userService.findByUsername(authentication.getName())
-                .orElseThrow(UserNotFoundException::new);
-
-        eventService.createEvent(title, startTime, endTime, annotation, notes, null, user);
+    public String createEvent(@RequestParam EventCreateRequest request) {
+        eventService.createEvent(request);
         return "redirect:/dashboard";
     }
 
@@ -186,16 +179,8 @@ public class DashboardController {
      * Добавление задачи.
      */
     @PostMapping("/tasks")
-    public String createTask(
-            @RequestParam String title,
-            @RequestParam(required = false) String description,
-            @RequestParam TaskPriority priority,
-            @RequestParam(required = false) LocalDateTime dueDate,
-                             Authentication authentication) {
-        User user = userService.findByUsername(authentication.getName())
-                .orElseThrow(UserNotFoundException::new);
-
-        taskService.createTask(title, description, priority, dueDate, user);
+    public String createTask(@RequestParam TaskCreateRequest request) {
+        taskService.createTask(request);
         return "redirect:/dashboard";
     }
 

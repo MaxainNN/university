@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * Глобальный обработчик исключений.
  */
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "io.mkalugin.university.controller.api")
 public class GlobalExceptionHandler {
 
     /**

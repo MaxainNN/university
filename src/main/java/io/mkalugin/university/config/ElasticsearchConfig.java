@@ -20,11 +20,22 @@ public class ElasticsearchConfig {
     @Value("${spring.elasticsearch.uris}")
     private String elasticUrl;
 
+    /**
+     * Создает REST клиент для подключения к Elasticsearch.
+     *
+     * @return настроенный REST клиент
+     */
     @Bean
     public RestClient restClient() {
         return RestClient.builder(HttpHost.create(elasticUrl)).build();
     }
 
+    /**
+     * Создает клиент Elasticsearch на основе REST клиента.
+     *
+     * @param restClient REST клиент
+     * @return клиент Elasticsearch
+     */
     @Bean
     public ElasticsearchClient elasticsearchClient(RestClient restClient) {
         return new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
