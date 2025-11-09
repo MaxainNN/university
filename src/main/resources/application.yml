@@ -65,6 +65,8 @@ spring:
             enable: true
 
 scheduler:
+  enabled: true
+#  reminder-cron: "0 0/1 * * * *" # для теста
   reminder-cron: "0 0 * * * *"
 
 management:

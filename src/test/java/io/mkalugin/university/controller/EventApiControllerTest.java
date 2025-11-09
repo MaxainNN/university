@@ -5,15 +5,25 @@ import io.mkalugin.university.dto.EventCreateRequest;
 import io.mkalugin.university.entity.Event;
 import io.mkalugin.university.entity.User;
 import io.mkalugin.university.service.EventService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,6 +32,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +77,7 @@ class EventApiControllerTest {
         return event;
     }
 
-    private EventCreateRequest createEventRequest(Long userId) {
+    private EventCreateRequest createEventRequest() {
         EventCreateRequest request = new EventCreateRequest();
         request.setTitle("Test Event");
         request.setAnnotation("Test Annotation");
@@ -74,8 +85,23 @@ class EventApiControllerTest {
         request.setStartTime(LocalDateTime.now().plusDays(1));
         request.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
         request.setReminderTime(LocalDateTime.now().plusDays(1).minusHours(1));
-        request.setUserId(userId);
         return request;
+    }
+
+    @BeforeEach
+    void setupSecurityContext() {
+        Authentication auth = Mockito.mock(Authentication.class);
+        lenient().when(auth.getName()).thenReturn("testuser");
+
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        lenient().when(securityContext.getAuthentication()).thenReturn(auth);
+
+        SecurityContextHolder.setContext(securityContext);
+    }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -85,7 +111,7 @@ class EventApiControllerTest {
         log.info("createEventWithValidRequestShouldReturnCreatedEvent test started");
 
         Long userId = 1L;
-        EventCreateRequest request = createEventRequest(userId);
+        EventCreateRequest request = createEventRequest();
         Event expectedEvent = createEvent(1L, "Test Event", userId,
                 request.getStartTime(), request.getEndTime());
 
@@ -111,7 +137,7 @@ class EventApiControllerTest {
     void createEventWithServiceReturningNullShouldReturnOkWithNull() {
         log.info("createEventWithServiceReturningNullShouldReturnOkWithNull test started");
 
-        EventCreateRequest request = createEventRequest(1L);
+        EventCreateRequest request = createEventRequest();
 
         when(eventService.createEvent(request)).thenReturn(null);
 
@@ -360,7 +386,7 @@ class EventApiControllerTest {
         log.info("createEventWithAllFieldsShouldReturnEventWithAllFields test started");
 
         Long userId = 1L;
-        EventCreateRequest request = createEventRequest(userId);
+        EventCreateRequest request = createEventRequest();
 
         Event expectedEvent = new Event();
         expectedEvent.setId(1L);

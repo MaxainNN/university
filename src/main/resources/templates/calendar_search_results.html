@@ -3,7 +3,7 @@
 <head>
     <title>Calendar Search event result</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/styles/styles.css">
+    <link rel="stylesheet" th:href="@{/styles/styles.css}">
 </head>
 <body class="calendar-search-page">
 
@@ -15,7 +15,7 @@
 </div>
 
 <div class="search-results">
-    <form th:action="@{/calendar/search}" method="get" class="search-form">
+    <form th:action="@{/dashboard/calendar/search}" method="get" class="search-form">
         <input type="text" name="query" th:value="${query}" placeholder="Search events..." required>
         <button type="submit">Search</button>
     </form>
@@ -29,7 +29,7 @@
         </li>
     </ul>
 
-    <a th:href="@{/calendar}">← Back to calendar</a>
+    <a th:href="@{/dashboard/calendar}">← Back to calendar</a>
 </div>
 </body>
 </html>

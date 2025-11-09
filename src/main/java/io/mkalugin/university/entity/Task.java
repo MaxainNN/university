@@ -1,5 +1,6 @@
 package io.mkalugin.university.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.mkalugin.university.enums.TaskPriority;
 import io.mkalugin.university.enums.TaskStatus;
 import jakarta.persistence.Column;
@@ -62,6 +63,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     public Task(String title, User user) {

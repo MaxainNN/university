@@ -25,11 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,8 +65,12 @@ public class DashboardController {
 
         Page<TaskResponse> taskPage = taskService.getTasksByUser(user, page, 10);
 
+        List<TaskResponse> activeTasks = taskPage.getContent().stream()
+                .filter(task -> !"COMPLETED".equalsIgnoreCase(task.getStatus().name()))
+                .toList();
+
         model.addAttribute("user", user);
-        model.addAttribute("tasks", taskPage.getContent());
+        model.addAttribute("tasks", activeTasks);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", taskPage.getTotalPages());
 
@@ -206,7 +206,7 @@ public class DashboardController {
      * Добавление события.
      */
     @PostMapping("/events")
-    public String createEvent(@RequestParam EventCreateRequest request) {
+    public String createEvent(@ModelAttribute EventCreateRequest request) {
         eventService.createEvent(request);
         return "redirect:/dashboard";
     }
@@ -215,7 +215,7 @@ public class DashboardController {
      * Добавление задачи.
      */
     @PostMapping("/tasks")
-    public String createTask(@RequestParam TaskCreateRequest request) {
+    public String createTask(@ModelAttribute TaskCreateRequest request) {
         taskService.createTask(request);
         return "redirect:/dashboard";
     }

@@ -24,7 +24,4 @@ public class TaskCreateRequest {
 
     @Schema(description = "Срок выполнения задачи", example = "2025-12-31T23:59:59")
     private LocalDateTime dueDate;
-
-    @Schema(description = "Имя пользователя")
-    private Long userId;
 }

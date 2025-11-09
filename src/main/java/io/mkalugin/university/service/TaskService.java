@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +49,10 @@ public class TaskService {
     @CacheEvict(allEntries = true)
     @Transactional
     public Task createTask(TaskCreateRequest request) {
-        log.debug("Creating task {} for userId = {}", request.getTitle(), request.getUserId());
+        log.debug("Creating task {}", request.getTitle());
 
-        User user = userRepository.findById(request.getUserId())
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
         Task task = taskMapper.toEntity(request, user);

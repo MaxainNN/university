@@ -29,7 +29,4 @@ public class EventCreateRequest {
 
     @Schema(description = "Время напоминания", example = "2025-12-31T23:59:59")
     private LocalDateTime reminderTime;
-
-    @Schema(description = "Имя пользователя")
-    private Long userId;
 }

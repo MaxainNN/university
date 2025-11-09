@@ -10,6 +10,7 @@ import io.mkalugin.university.repository.UserRepository;
 import io.mkalugin.university.service.search.EventSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,8 @@ public class EventService {
     public Event createEvent(EventCreateRequest request) {
         log.info("Creating event");
 
-        User user = userRepository.findById(request.getUserId())
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(UserNotFoundException::new);
 
         Event event = eventMapper.toEntity(request, user);
