@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Event - Electronic Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/styles/styles.css}">
+</head>
+<body class="create-event-page">
+<div class="nav">
+    <a th:href="@{/dashboard}">Dashboard</a> |
+    <a th:href="@{/dashboard/calendar}">Calendar</a> |
+    <a th:href="@{/dashboard/profile}">Profile</a> |
+    <a th:href="@{/logout}">Logout</a>
+</div>
+
+<div class="container">
+    <h2>Create New Event</h2>
+
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form th:action="@{/dashboard/calendar/create}" method="post" class="event-form">
+        <div class="form-group">
+            <label for="title">Event Title *</label>
+            <input type="text" id="title" name="title" th:value="${eventRequest?.title}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="annotation">Annotation</label>
+            <input type="text" id="annotation" name="annotation" th:value="${eventRequest?.annotation}">
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" th:text="${eventRequest?.notes}"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="startTime">Start Time *</label>
+                <input type="datetime-local" id="startTime" name="startTime" required>
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">End Time *</label>
+                <input type="datetime-local" id="endTime" name="endTime" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="reminderTime">Reminder Time</label>
+            <input type="datetime-local" id="reminderTime" name="reminderTime">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Event</button>
+            <a th:href="@{/dashboard/calendar}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const today = now.toISOString().slice(0, 16);
+
+        const startTime = new Date(now);
+        startTime.setHours(9, 0, 0, 0);
+        const startTimeValue = startTime.toISOString().slice(0, 16);
+
+        const endTime = new Date(now);
+        endTime.setHours(10, 0, 0, 0);
+        const endTimeValue = endTime.toISOString().slice(0, 16);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateParam = urlParams.get('date');
+
+        if (dateParam) {
+            const customStartTime = dateParam + 'T09:00';
+            const customEndTime = dateParam + 'T10:00';
+
+            document.getElementById('startTime').value = customStartTime;
+            document.getElementById('endTime').value = customEndTime;
+        } else {
+            document.getElementById('startTime').value = startTimeValue;
+            document.getElementById('endTime').value = endTimeValue;
+        }
+
+        document.getElementById('startTime').min = today;
+        document.getElementById('endTime').min = today;
+
+        const reminderTimeInput = document.getElementById('reminderTime');
+        if (reminderTimeInput) {
+            reminderTimeInput.min = today;
+        }
+
+        document.getElementById('startTime').addEventListener('change', function() {
+            document.getElementById('endTime').min = this.value;
+        });
+    });
+</script>
+</body>
+</html>

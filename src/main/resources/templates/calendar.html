@@ -13,10 +13,14 @@
     <a href="/logout">Logout</a>
 </div>
 
-<form th:action="@{/calendar/search}" method="get" class="search-form">
-    <input type="text" name="query" th:value="${query}" placeholder="Search events..." required>
-    <button type="submit">Search</button>
-</form>
+<div class="calendar-actions">
+    <a th:href="@{/dashboard/calendar/create}" class="btn btn-primary">+ Add Event</a>
+
+    <form th:action="@{/dashboard/calendar/search}" method="get" class="search-form">
+        <input type="text" name="query" th:value="${query}" placeholder="Search events..." required>
+        <button type="submit">Search</button>
+    </form>
+</div>
 
 <div class="calendar-header">
     <a th:href="@{/dashboard/calendar(date=${previousMonth})}" class="btn">&lt; Prev</a>
@@ -24,7 +28,6 @@
     <a th:href="@{/dashboard/calendar(date=${nextMonth})}" class="btn">Next &gt;</a>
 </div>
 
-<!-- Добавим выбор месяца через селект -->
 <div class="month-selector">
     <form th:action="@{/dashboard/calendar}" method="get" class="month-form">
         <select name="date" onchange="this.form.submit()">
@@ -55,11 +58,12 @@
 
         <div class="date-number" th:text="${day}">1</div>
 
-        <div class="event-list" th:if="${eventsByDay[day] != null}">
-            <div class="event-item">
-                <span class="event-dot" th:title="${eventsByDay[day].size()} events"></span>
-                <span class="event-count" th:text="${eventsByDay[day].size()}">1</span>
-            </div>
+        <div class="event-indicator" th:if="${eventsByDay[day] != null}">
+            <div class="event-count-badge" th:text="${eventsByDay[day].size()}">1</div>
+        </div>
+
+        <div class="event-data" style="display: none;"
+             th:attr="data-day=${day}">
         </div>
     </div>
 </div>
@@ -69,72 +73,125 @@
         <span class="close">&times;</span>
         <h3 id="modalDate"></h3>
         <div id="modalEvents"></div>
+        <div class="modal-actions">
+            <button id="addEventToDay" class="btn btn-primary">Add Event to This Day</button>
+        </div>
     </div>
 </div>
 
-<script>
-    function showDayEvents(day, month, year, events) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
-
-        document.getElementById('modalDate').textContent =
-            'Events for ' + day + ' ' + monthNames[month] + ' ' + year;
-
-        const modalEvents = document.getElementById('modalEvents');
-        let eventsHtml = '';
-
-        if (events && events.length > 0) {
-            events.forEach(event => {
-                const startTime = new Date(event.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const endTime = new Date(event.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                eventsHtml += `
-                    <div class="event-detail">
-                        <h4>${event.title}</h4>
-                        <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
-                        ${event.annotation ? `<p><strong>Annotation:</strong> ${event.annotation}</p>` : ''}
-                        ${event.notes ? `<p><strong>Notes:</strong> ${event.notes}</p>` : ''}
-                    </div>
-                    <hr>
-                `;
-            });
-        } else {
-            eventsHtml = '<p>No events for this day.</p>';
-        }
-
-        modalEvents.innerHTML = eventsHtml;
-        document.getElementById('dayModal').style.display = 'block';
-    }
-
-    document.querySelector('.close').addEventListener('click', function() {
-        document.getElementById('dayModal').style.display = 'none';
-    });
-
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('dayModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
+<script th:inline="javascript">
+    /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function() {
-        const dayCells = document.querySelectorAll('.day-cell.has-event');
-        const eventsData = JSON.parse('[[${eventsJson}]]');
-        const selectedDate = new Date('[[${selectedDate}]]');
+        const dayCells = document.querySelectorAll('.day-cell:not(.empty)');
+
+        const selectedDateStr = /*[[${selectedDateJs}]]*/ '2025-11-01';
+        const eventsData = /*[[${eventsJson}]]*/ {};
+
+        console.log('Selected date string:', selectedDateStr);
+        console.log('Events data:', eventsData);
 
         dayCells.forEach(cell => {
+            const day = cell.querySelector('.date-number').textContent;
+
             cell.style.cursor = 'pointer';
             cell.addEventListener('click', function() {
-                const day = this.querySelector('.date-number').textContent;
+                const dayEvents = eventsData[day] || [];
+                console.log('Events for day', day, ':', dayEvents);
 
-                if (eventsData[day]) {
-                    showDayEvents(day, selectedDate.getMonth(), selectedDate.getFullYear(), eventsData[day]);
-                }
+                const selectedDate = new Date(selectedDateStr);
+                const currentYear = selectedDate.getFullYear();
+                const currentMonth = selectedDate.getMonth();
+
+                showDayEvents(parseInt(day), currentMonth, currentYear, dayEvents);
             });
         });
+
+        const addEventBtn = document.getElementById('addEventToDay');
+        if (addEventBtn) {
+            addEventBtn.addEventListener('click', function() {
+                const modalDate = document.getElementById('modalDate').textContent;
+                const dateMatch = modalDate.match(/Events for (\d+) (\w+) (\d+)/);
+                if (dateMatch) {
+                    const day = dateMatch[1];
+                    const month = dateMatch[2];
+                    const year = dateMatch[3];
+
+                    const eventDate = year + '-' + getMonthNumber(month) + '-' + day.padStart(2, '0');
+                    window.location.href = '/dashboard/calendar/create?date=' + eventDate;
+                }
+            });
+        }
+
+        function showDayEvents(day, month, year, events) {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            document.getElementById('modalDate').textContent =
+                'Events for ' + day + ' ' + monthNames[month] + ' ' + year;
+
+            const modalEvents = document.getElementById('modalEvents');
+            let eventsHtml = '';
+
+            if (events && events.length > 0) {
+                events.forEach(event => {
+                    const startTime = formatTime(event.startTime);
+                    const endTime = formatTime(event.endTime);
+
+                    eventsHtml += `
+                        <div class="event-detail">
+                            <h4>${event.title || 'No title'}</h4>
+                            <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+                            ${event.annotation ? `<p><strong>Annotation:</strong> ${event.annotation}</p>` : ''}
+                            ${event.notes ? `<p><strong>Notes:</strong> ${event.notes}</p>` : ''}
+                        </div>
+                        <hr>
+                    `;
+                });
+            } else {
+                eventsHtml = '<p>No events for this day.</p>';
+            }
+
+            modalEvents.innerHTML = eventsHtml;
+            document.getElementById('dayModal').style.display = 'block';
+        }
+
+        function formatTime(dateTimeString) {
+            try {
+                const date = new Date(dateTimeString);
+                return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (e) {
+                console.error('Error formatting time:', e);
+                return dateTimeString;
+            }
+        }
+
+        function getMonthNumber(monthName) {
+            const months = {
+                'January': '01', 'February': '02', 'March': '03', 'April': '04',
+                'May': '05', 'June': '06', 'July': '07', 'August': '08',
+                'September': '09', 'October': '10', 'November': '11', 'December': '12'
+            };
+            return months[monthName] || '01';
+        }
+
+        const closeBtn = document.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                document.getElementById('dayModal').style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('dayModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
     });
+    /*]]>*/
 </script>
+
 
 </body>
 </html>

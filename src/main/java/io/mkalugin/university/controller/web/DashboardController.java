@@ -29,7 +29,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -122,8 +124,21 @@ public class DashboardController {
             currentMonth = currentMonth.plusMonths(1);
         }
 
-        Map<String, List<Event>> eventsForJson = events.stream()
-                .collect(Collectors.groupingBy(e -> String.valueOf(e.getStartTime().getDayOfMonth())));
+        Map<String, Object> eventsForJson = new HashMap<>();
+        for (Map.Entry<Integer, List<Event>> entry : eventsByDay.entrySet()) {
+            List<Map<String, Object>> dayEvents = entry.getValue().stream()
+                    .map(event -> {
+                        Map<String, Object> eventMap = new HashMap<>();
+                        eventMap.put("title", event.getTitle());
+                        eventMap.put("annotation", event.getAnnotation());
+                        eventMap.put("notes", event.getNotes());
+                        eventMap.put("startTime", event.getStartTime().toString());
+                        eventMap.put("endTime", event.getEndTime().toString());
+                        return eventMap;
+                    })
+                    .collect(Collectors.toList());
+            eventsForJson.put(String.valueOf(entry.getKey()), dayEvents);
+        }
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
@@ -139,6 +154,7 @@ public class DashboardController {
         model.addAttribute("user", user);
         model.addAttribute("eventsByDay", eventsByDay);
         model.addAttribute("selectedDate", date);
+        model.addAttribute("selectedDateJs", date.format(DateTimeFormatter.ISO_LOCAL_DATE));
         model.addAttribute("previousMonth", date.minusMonths(1));
         model.addAttribute("nextMonth", date.plusMonths(1));
         model.addAttribute("firstDayOfWeek", firstDayOfWeek);
@@ -200,6 +216,57 @@ public class DashboardController {
         model.addAttribute("query", query);
 
         return "calendar_search_results";
+    }
+
+    /**
+     * Форма создания события
+     */
+    @GetMapping("/calendar/create")
+    public String showCreateEventForm(@RequestParam(required = false)
+                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                      Authentication authentication,
+                                      Model model) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/";
+        }
+
+        User user = userService.findByUsername(authentication.getName())
+                .orElseThrow(UserNotFoundException::new);
+
+        EventCreateRequest eventRequest = new EventCreateRequest();
+
+        model.addAttribute("user", user);
+        model.addAttribute("eventRequest", eventRequest);
+
+        return "create_event";
+    }
+
+    /**
+     * Обработка создания события
+     */
+    @PostMapping("/calendar/create")
+    public String createEvent(@ModelAttribute EventCreateRequest eventRequest,
+                              Authentication authentication,
+                              Model model) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/";
+        }
+
+        try {
+            Event createdEvent = eventService.createEvent(eventRequest);
+            return "redirect:/dashboard/calendar?date=" +
+                    createdEvent.getStartTime().toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (Exception e) {
+            User user = userService.findByUsername(authentication.getName())
+                    .orElseThrow(UserNotFoundException::new);
+
+            model.addAttribute("user", user);
+            model.addAttribute("error", "Error creating event: " + e.getMessage());
+            model.addAttribute("eventRequest", eventRequest);
+            return "create_event";
+        }
     }
 
     /**

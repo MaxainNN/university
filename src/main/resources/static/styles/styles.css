@@ -551,3 +551,54 @@ input, textarea, select {
     background-color: #0056b3;
     transform: translateY(-1px);
 }
+
+.calendar-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.event-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.event-count-badge {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+.day-cell.has-event:hover {
+    background-color: #e9ecef;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    text-align: center;
+}
