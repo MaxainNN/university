@@ -1,9 +1,5 @@
 package io.mkalugin.university.controller.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mkalugin.university.dto.EventCreateRequest;
 import io.mkalugin.university.dto.TaskCreateRequest;
 import io.mkalugin.university.dto.TaskResponse;
@@ -140,17 +136,7 @@ public class DashboardController {
             eventsForJson.put(String.valueOf(entry.getKey()), dayEvents);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        try {
-            String eventsJson = objectMapper.writeValueAsString(eventsForJson);
-            model.addAttribute("eventsJson", eventsJson);
-        } catch (JsonProcessingException e) {
-            model.addAttribute("eventsJson", "{}");
-        }
-
+        model.addAttribute("eventsJson", eventsForJson);
         model.addAttribute("user", user);
         model.addAttribute("eventsByDay", eventsByDay);
         model.addAttribute("selectedDate", date);

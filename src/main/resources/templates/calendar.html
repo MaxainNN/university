@@ -23,16 +23,16 @@
 </div>
 
 <div class="calendar-header">
-    <a th:href="@{/dashboard/calendar(date=${previousMonth})}" class="btn">&lt; Prev</a>
+    <a th:href="@{/dashboard/calendar(date=${#temporals.format(previousMonth, 'yyyy-MM-dd')})}" class="btn">&lt; Prev</a>
     <h2 th:text="${#temporals.format(selectedDate, 'MMMM yyyy')}">November 2025</h2>
-    <a th:href="@{/dashboard/calendar(date=${nextMonth})}" class="btn">Next &gt;</a>
+    <a th:href="@{/dashboard/calendar(date=${#temporals.format(nextMonth, 'yyyy-MM-dd')})}" class="btn">Next &gt;</a>
 </div>
 
 <div class="month-selector">
     <form th:action="@{/dashboard/calendar}" method="get" class="month-form">
         <select name="date" onchange="this.form.submit()">
             <option th:each="month : ${availableMonths}"
-                    th:value="${month}"
+                    th:value="${#temporals.format(month, 'yyyy-MM-dd')}"
                     th:text="${#temporals.format(month, 'MMMM yyyy')}"
                     th:selected="${month == selectedDate}">
             </option>
